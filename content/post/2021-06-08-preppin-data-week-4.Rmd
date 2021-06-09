@@ -1,0 +1,115 @@
+---
+title: Preppin' Data Week 4
+author: 'Scott Gee'
+date: '2021-06-08'
+slug: preppin-data-week-4
+categories: 
+  - R
+tags:
+  - prepping-data
+---
+
+Week 4 is similar at the start to week 3 but requires the use of joins for the first time in these challenges. This can be done with the `inner_join` function in `dplyr`. If you know SQL, the syntax will be simple to pick up.
+
+The challenge can be found [here](https://preppindata.blogspot.com/2021/01/2021-week-4.html)
+
+First load libraries and read in data. We are using `map_df` again to read in multiple sheets. If you haven't looked at how to do this in week 3 head [there](/2021/06/08/preppin-data-week-3/) before reading this week.
+
+```{r load-libraries, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(readxl)
+library(lubridate)
+library(data.table)
+
+sheet_names <- excel_sheets('week4-data.xlsx')[1:5]
+
+sheet_names <- set_names(sheet_names, sheet_names) #this ensures that we can use an id column as the store name
+
+dat <- map_df(sheet_names, ~ read_excel('week4-data.xlsx', sheet = .x), .id = 'store')
+```
+
+Next pivot the product columns
+```{r pivot}
+dat_q2 <- pivot_longer(dat, `New - Saddles`:`Existing - Bags`)
+```
+
+Split field with customer type and product using `separate` and rename `value` column to products sold
+
+```{r split-field}
+dat_q3 <- separate(dat_q2, name, into = c('customer_type', 'product'), sep = ' - ')
+
+dat_q3 <- rename(dat_q3, products_sold = value)
+```
+
+Turn the `date` into a `quarter` with `lubridate`
+
+```{r date-quarter}
+dat_q4 <- mutate(dat_q3, quarter = quarter(Date))
+```
+
+Sum up products sold by `store` and `quarter`
+
+```{r sum-products}
+dat_q5 <- dat_q4 %>% 
+  group_by(store, quarter) %>% 
+  summarise(products_sold = sum(products_sold))
+```
+
+Add targets data
+
+```{r add-targets}
+targets <- read_excel('week4-data.xlsx', sheet = 'Targets')
+```
+
+Join `targets` data to aggregated stores data
+
+
+
+```{r join, message=FALSE}
+dat_q7 <- inner_join(dat_q5, targets, by = c('store' = 'Store', 'quarter' = 'Quarter'))
+```
+
+Calculate variance between actual sales and target
+
+
+```{r calculate-variance, message=FALSE}
+dat_q9 <- mutate(dat_q7, variance_to_target = Target - products_sold)
+```
+
+
+Rank the stores based on variance to target in each quarter
+
+
+```{r rank-stores}
+dat_q10 <- dat_q9 %>% 
+  group_by(quarter) %>% 
+  mutate(rank = rank(desc(variance_to_target)))
+```
+
+
+Export data
+
+
+```{r export}
+fwrite(dat_q10, 'correct-output.csv')
+```
+
+
+You could write this within one pipe call with the below:
+
+
+```{r one-pipe}
+one_pipe <- dat %>% 
+  pivot_longer(`New - Saddles`:`Existing - Bags`) %>% 
+  separate(name, into = c('customer_type', 'product'), sep = ' - ') %>% 
+  rename(products_sold = value) %>% 
+  mutate(quarter = quarter(Date)) %>% 
+  group_by(store, quarter) %>% 
+  summarise(products_sold = sum(products_sold)) %>% 
+  inner_join(targets, by = c('store' = 'Store', 'quarter' = 'Quarter')) %>% 
+  mutate(variance_to_target = Target - products_sold) %>% 
+  group_by(quarter) %>% 
+  mutate(rank = rank(desc(variance_to_target))) 
+    
+```
+

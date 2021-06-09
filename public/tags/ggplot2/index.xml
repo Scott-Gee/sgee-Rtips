@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>ggplot2 on sgee R Tips</title>
+    <link>/tags/ggplot2/</link>
+    <description>Recent content in ggplot2 on sgee R Tips</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 20 Apr 2020 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/ggplot2/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Changing the Colour of Titles - ggplot2</title>
+      <link>/post/changing-the-colour-of-titles-ggplot2/</link>
+      <pubDate>Mon, 20 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/post/changing-the-colour-of-titles-ggplot2/</guid>
+      <description>This short post will show how to change the colour of different words in a ggplot2 title. It can be useful to remove the legend and show the colour in the titles to remove some chart junk.
+Using the gapminder dataset and filtering for Argentina and Australia, I use some simple code to create a plot for the change in life expectancy over time.
+library(tidyverse, warn.conflicts = FALSE) ## Warning: package &amp;#39;tidyverse&amp;#39; was built under R version 4.</description>
+    </item>
+    
+  </channel>
+</rss>

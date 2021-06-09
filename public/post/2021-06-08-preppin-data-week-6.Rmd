@@ -1,0 +1,86 @@
+---
+title: Preppin' Data Week 6
+author: Scott
+date: '2021-06-08'
+slug: preppin-data-week-6
+categories:
+  - R
+tags:
+  - prepping-data
+---
+For week 6 it showed how little code can be used to manipulate and summarise data in R using `dplyr`. `pivot_longer` and `pivot_wider` were also used to restructure data in to the required format.
+
+First load libraries and read in data. Removing the dollar sign with `str_remove_all`. The `^` will remove everything but digits (0-9).
+
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(readxl)
+library(data.table)
+
+dat <- read_excel('week6-data.xlsx')
+
+#remove dollar sign
+dat <- dat %>% 
+  mutate(MONEY = str_remove_all(MONEY, "[^0-9]"),
+         MONEY = as.integer(MONEY))
+```
+
+Create a rank by money earned on all tours, then `group_by` the tour and create a tour rank. After this the summary statistics can be created with calculations. 
+
+`n() will give the count, if the data is grouped it will count the number of observations within the group(s)`
+
+```{r total-tour-money}
+dat_q1 <- dat %>% 
+  mutate(overall_rank = rank(desc(MONEY))) %>% 
+  group_by(TOUR) %>% 
+  mutate(tour_rank = rank(desc(MONEY))) %>%  
+  summarise(total_prize_money = sum(MONEY),
+            total_player = n(),
+            total_events = sum(EVENTS),
+            average_prize_money = sum(MONEY)/sum(EVENTS),
+            average_ranking = mean(overall_rank - tour_rank)) 
+  
+```
+
+Pivot the data to make it long and then switch the tour names from rows to columns
+
+```{r}
+dat_q3 <- dat_q1 %>% 
+  pivot_longer(-TOUR) %>% 
+  pivot_wider(names_from = TOUR, values_from = value) 
+```
+
+The difference between tours can be created with a simple `mutate` call
+
+```{r}
+dat_q4 <- dat_q3 %>% 
+  mutate(difference = LPGA - PGA) %>% 
+  rename(Measure = name)
+```
+
+Output the data
+
+```{r}
+fwrite(dat_q4, 'week6-correct-output.csv')
+```
+
+
+You can answer this within one chunk of code using multiple pipes like below.
+
+```{r}
+dat %>% 
+  mutate(overall_rank = rank(desc(MONEY))) %>% 
+  group_by(TOUR) %>% 
+  mutate(tour_rank = rank(desc(MONEY))) %>%  
+  summarise(total_prize_money = sum(MONEY),
+            total_player = n(),
+            total_events = sum(EVENTS),
+            average_prize_money = sum(MONEY)/sum(EVENTS),
+            average_ranking = mean(overall_rank - tour_rank)) %>% 
+  pivot_longer(-TOUR) %>% 
+  pivot_wider(names_from = TOUR, values_from = value) %>% 
+  mutate(difference = LPGA - PGA) %>% 
+  rename(Measure = name)
+```
+

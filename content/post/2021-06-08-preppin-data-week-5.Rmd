@@ -1,0 +1,73 @@
+---
+title: Preppin' Data Week 5
+author: Scott 
+date: '2021-06-08'
+slug: preppin-data-week-5
+categories:
+  - R
+tags:
+  - prepping-data
+---
+Week 5 was definitely more challenging than recent weeks and dealing with duplication can be quite hard in R. It can be helpful to group by the columns of interest and then filter using `filter(date = max(date)` to get the latest record or `filter(date = min(date)` for the first record for specific columns.
+
+The challenge can be found [here](https://preppindata.blogspot.com/2021/01/2021-week-.html)
+
+First load libraries and read in data
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(readxl)
+library(lubridate)
+library(data.table)
+
+dat <- read_excel('week5-data.xlsx')
+```
+
+For each `client`, work out the most recent `account manager`. For the client, account manager and date, get all separate records. Next filter for the record with the latest date for these three columns
+
+```{r most-recent-account-manager}
+dat_q1 <- dat %>%
+  select(Client, `Account Manager`, `From Date`) %>% 
+  distinct() %>% 
+  group_by(Client) %>% 
+  filter(`From Date` == max(`From Date`))
+```
+
+Filter/replace the data so only the most recent `account manager` remains. This has been done by grouping by the training session, email, name and client and then only retuning the latest record for each of these.
+
+```{r filter-data}
+dat_q2 <- dat %>% 
+  group_by(Training, `Contact Email`, `Contact Name`, Client) %>% 
+  filter(`From Date` == max(`From Date`)) %>% 
+  inner_join(dat_q1, by = 'Client') %>% 
+  select(-ends_with(".x")) %>% 
+  rename(`From Date` = `From Date.y`,
+         `Account Manager` = `Account Manager.y`)
+```
+
+Ensure the most recent client ID remains. This is using a similar method to before, getting the latest client ID for a client and then joining this back to the dataframe with the most recent account manager.
+
+
+```{r most-recent-client-id}
+dat_q3_1 <- dat %>% 
+  select(Client, `Client ID`, `From Date`) %>% 
+  distinct() %>% 
+  ungroup() %>% 
+  group_by(Client) %>% 
+  filter(`From Date` == max(`From Date`)) %>% 
+  arrange(Client)
+
+dat_q3_2 <- dat_q2 %>% 
+  ungroup() %>% 
+  inner_join(dat_q3_1, by = c('Client', 'From Date')) %>% 
+  select(-`Client ID.x`) %>% 
+  rename(`Client ID` = `Client ID.y`)
+
+```
+
+Output
+
+```{r}
+fwrite(dat_q3_2, file = 'week5-correct-output.csv')
+```
+

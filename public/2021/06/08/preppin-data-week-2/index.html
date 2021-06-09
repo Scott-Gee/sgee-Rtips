@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="theme-color" content="dark">
+    <title> Preppin&#39; Data Week 2 | sgee R Tips</title>
+    
+    
+    
+    <link rel="stylesheet" href="/sass/main.min.c1dd93c9ccf0ca1f09bddc887f771c7b9a9c0b53396e6de3ff357a36239c4ebf.css">
+</head>
+
+    <body class="dark">
+        <nav class="navbar">
+    <div class="container">
+        <div class="flex">
+            <div>
+                <a class="brand" href="/">
+                    
+                    sgee R Tips
+                    </a>
+            </div>
+            <div class="flex">
+                
+                <button id="dark-mode-button"></button>
+            </div>
+            </div>
+    </div>
+</nav>
+        <main>
+            
+
+<div class="container">
+    <article>
+        <header class="article-header">
+            <div class="thumb">
+                <div>
+                    <h1>Preppin&#39; Data Week 2</h1>
+                    <div class="post-meta">
+                        <div>
+                            By  on <time>June 08, 2021</time>
+                        </div>
+                        <div class="tags">
+                            
+                            <a href="/tags/prepping-data/">prepping-data</a>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+    </article>
+
+    <div class="article-post">
+    
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+<link href="/rmarkdown-libs/anchor-sections/anchor-sections.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/anchor-sections/anchor-sections.js"></script>
+
+
+<p>For week 2 there are lots of calculations to be done which can be done with <code>dplyr</code> and the <code>mutate</code>, <code>group_by</code> and <code>summarise</code> functions.</p>
+<p>The challenge can be found <a href="https://preppindata.blogspot.com/2021/01/2021-week-2.html">here</a></p>
+<p>First load libraries and read in data</p>
+<pre class="r"><code>library(tidyverse)
+library(readxl)
+library(writexl)
+
+dat &lt;- read_excel(&#39;week2-data.xlsx&#39;)</code></pre>
+<p>Next, clean up the <code>model</code> field to leave only the letters. This is done with the regex [aA-zZ]</p>
+<pre class="r"><code>dat_q1 &lt;- mutate(dat, Brand = str_extract(Model, &quot;[aA-zZ]+&quot;))</code></pre>
+<p>Work out order value by calculating quantity x value per bike</p>
+<pre class="r"><code>dat_q2 &lt;- mutate(dat_q1, order_value = Quantity * `Value per Bike`)</code></pre>
+<p>Aggregate quantity sold, order value, average value by brand and bike type</p>
+<pre class="r"><code>dat_q3 &lt;- dat_q2 %&gt;% 
+  group_by(`Bike Type`, Brand) %&gt;% 
+  summarise(quantity_sold = sum(Quantity), 
+            order_value = sum(order_value),
+            average_value = mean(sum(order_value)/sum(Quantity)))</code></pre>
+<pre><code>## `summarise()` regrouping output by &#39;Bike Type&#39; (override with `.groups` argument)</code></pre>
+<p>Calculate days to ship with shipping and order dates</p>
+<pre class="r"><code>dat_q4 &lt;- dat_q2 %&gt;% 
+  mutate(days_to_ship = `Shipping Date`- `Order Date`)</code></pre>
+<p>Aggregate order value, quantity sold and average days to ship by brand and store</p>
+<pre class="r"><code>dat_q5 &lt;- dat_q4 %&gt;% 
+  group_by(Brand, Store) %&gt;% 
+  summarise(quantity_sold = sum(Quantity), 
+            order_value = sum(order_value),
+            average_shipping_time = as.numeric(mean(days_to_ship)))</code></pre>
+<pre><code>## `summarise()` regrouping output by &#39;Brand&#39; (override with `.groups` argument)</code></pre>
+<p>Round to 1 decimal place</p>
+<pre class="r"><code>dat_q6_1 &lt;- mutate(dat_q5, across(where(is.numeric), round, 1))
+
+dat_q6_2 &lt;- mutate(dat_q3, across(where(is.numeric), round, 1))</code></pre>
+<p>Output</p>
+<pre class="r"><code>export_data &lt;- list(dat_q6_1, dat_q6_2)
+
+write_xlsx(export_data, path = &#39;week2-correct-output.xlsx&#39;, format_headers = FALSE)</code></pre>
+<p>Both of these could be written within one pipe by chaining the statements.</p>
+<pre class="r"><code>dat %&gt;% 
+  mutate(Brand = str_extract(Model, &quot;[aA-zZ]+&quot;),
+         order_value = Quantity * `Value per Bike`) %&gt;% 
+  group_by(`Bike Type`, Brand) %&gt;% 
+  summarise(quantity_sold = sum(Quantity), 
+            order_value = sum(order_value),
+            average_value = mean(sum(order_value)/sum(Quantity))) %&gt;% 
+  mutate(across(where(is.numeric), round, 1)) %&gt;% 
+  head()</code></pre>
+<pre><code>## `summarise()` regrouping output by &#39;Bike Type&#39; (override with `.groups` argument)</code></pre>
+<pre><code>## # A tibble: 6 x 5
+## # Groups:   Bike Type [2]
+##   `Bike Type` Brand quantity_sold order_value average_value
+##   &lt;chr&gt;       &lt;chr&gt;         &lt;dbl&gt;       &lt;dbl&gt;         &lt;dbl&gt;
+## 1 Gravel      BROM            186      433885         2333.
+## 2 Gravel      GIA             323      733087         2270.
+## 3 Gravel      KONA            324      791841         2444 
+## 4 Gravel      ORRO            151      411644         2726.
+## 5 Gravel      SPEC            974     2295397         2357.
+## 6 Mountain    BROM            277      674770         2436</code></pre>
+<pre class="r"><code>dat %&gt;% 
+  mutate(Brand = str_extract(Model, &quot;[aA-zZ]+&quot;),
+         order_value = Quantity * `Value per Bike`,
+         days_to_ship = `Shipping Date`- `Order Date`) %&gt;% 
+  group_by(Brand, Store) %&gt;% 
+  summarise(quantity_sold = sum(Quantity), 
+            order_value = sum(order_value),
+            average_shipping_time = as.numeric(mean(days_to_ship))) %&gt;% 
+   mutate(across(where(is.numeric), round, 1)) %&gt;% 
+  head()</code></pre>
+<pre><code>## `summarise()` regrouping output by &#39;Brand&#39; (override with `.groups` argument)</code></pre>
+<pre><code>## # A tibble: 6 x 5
+## # Groups:   Brand [2]
+##   Brand Store      quantity_sold order_value average_shipping_time
+##   &lt;chr&gt; &lt;chr&gt;              &lt;dbl&gt;       &lt;dbl&gt;                 &lt;dbl&gt;
+## 1 BROM  Birmingham           155      349759                  11.8
+## 2 BROM  Leeds                150      389116                   9.8
+## 3 BROM  London               133      324635                  11  
+## 4 BROM  Manchester           137      339832                  10.9
+## 5 BROM  York                 145      361852                   9.8
+## 6 GIA   Birmingham           269      581733                   9.9</code></pre>
+
+    </div>
+</div>
+
+<div class="container">
+    
+    <nav class="flex container suggested">
+        
+        <a rel="prev" href="/2021/06/08/preppin-data-week-3/" title="Previous post (older)">
+            <span>Previous</span>
+            Preppin&#39; Data Week 3
+            </a>
+        
+        
+        
+        <a rel="next" href="/2021/06/08/preppin-data-week-1/" title="Next post (newer)">
+            <span>Next</span>
+            Preppin&#39; Data Week 1
+            </a> 
+        
+    </nav>
+    
+</div>
+</main>
+
+
+        </main>
+        <footer class="footer flex">
+    <section class="container">
+        <nav class="footer-links">
+            
+        </nav>
+    </section>
+    
+    <script async src="/js/features.min.f77830aff4bfb7a756b9ef68388f40d2187cb0046d41790785074eb8cd054cc3.js" data-enable-footnotes="true"></script>
+</footer>
+    </body>
+</html>

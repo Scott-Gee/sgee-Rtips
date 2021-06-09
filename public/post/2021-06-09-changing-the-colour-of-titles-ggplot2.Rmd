@@ -1,0 +1,50 @@
+---
+title: Changing the Colour of Titles - ggplot2
+author: 'Scott '
+date: '2020-04-20'
+slug: changing-the-colour-of-titles-ggplot2
+categories:
+  - R
+tags:
+  - ggplot2
+---
+This short post will show how to change the colour of different words in a ggplot2 title. It can be useful to remove the legend and show the colour in the titles to remove some chart junk.
+
+
+Using the gapminder dataset and filtering for Argentina and Australia, I use some simple code to create a plot for the change in life expectancy over time.
+```{r}
+library(tidyverse, warn.conflicts = FALSE)
+library(gapminder)
+library(ggtext)
+theme_set(theme_light())
+
+df <- gapminder %>% 
+  filter(country %in% c('Argentina', 'Australia')) 
+
+ggplot(df, aes(year, lifeExp, colour = country)) +
+  geom_line() +
+  labs(title = "Both Argentina and Australia have increasing life expectancies",
+       x = "Year",
+       y = "Life Expectancy (years)",
+       caption = "Source: gapminder package") +
+  scale_colour_manual(values = c("#6CACE4", "#00843D"))
+```
+
+Although this plot is perfectly fine as an exploratory plot, it can be improved by removing some of the ‘chart junk’. By adding colour to the countries in the title it means we can remove the legend from the plot.
+
+This is done using the ggtext package, which allows HTML use within the title call and introduces a function element_markdown() that means markdown syntax can be used.
+
+In the example below I use both of these capabilities to make the title more impactful.
+```{r}
+ggplot(df, aes(year, lifeExp, colour = country)) +
+  geom_line() +
+  labs(title = "Both <span style='color:#6CACE4;'>**Argentina**</span> and <span style='color:#00843D;'>**Australia**</span> have increasing life expectancies",
+       x = "Year",
+       y = "Life Expectancy (years)",
+       caption = "Source: gapminder package") +
+  scale_colour_manual(values = c("#6CACE4", "#00843D")) +
+  theme(plot.title = element_markdown(),
+        legend.position = "none")
+```
+
+

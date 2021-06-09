@@ -1,0 +1,107 @@
+---
+title: Preppin' Data Week 2
+author: Scott
+date: '2021-06-08'
+slug: preppin-data-week-2
+categories:
+  - R
+tags:
+  - prepping-data
+---
+For week 2 there are lots of calculations to be done which can be done with `dplyr` and the `mutate`, `group_by` and `summarise` functions.
+
+The challenge can be found [here](https://preppindata.blogspot.com/2021/01/2021-week-2.html)
+
+First load libraries and read in data
+
+```{r load-libraries, message=FALSE,warning=FALSE}
+library(tidyverse)
+library(readxl)
+library(writexl)
+
+dat <- read_excel('week2-data.xlsx')
+```
+
+Next, clean up the `model` field to leave only the letters. This is done with the regex [aA-zZ]
+
+```{r clean-model-field}
+dat_q1 <- mutate(dat, Brand = str_extract(Model, "[aA-zZ]+"))
+```
+
+Work out order value by calculating quantity x value per bike
+
+```{r order-value}
+dat_q2 <- mutate(dat_q1, order_value = Quantity * `Value per Bike`)
+```
+
+Aggregate quantity sold, order value, average value by brand and bike type 
+
+```{r aggregate-1}
+dat_q3 <- dat_q2 %>% 
+  group_by(`Bike Type`, Brand) %>% 
+  summarise(quantity_sold = sum(Quantity), 
+            order_value = sum(order_value),
+            average_value = mean(sum(order_value)/sum(Quantity)))
+```
+
+Calculate days to ship with shipping and order dates
+
+```{r days-to-ship}
+dat_q4 <- dat_q2 %>% 
+  mutate(days_to_ship = `Shipping Date`- `Order Date`)
+```
+
+Aggregate order value, quantity sold and average days to ship by brand and store
+
+```{r aggregate-2}
+dat_q5 <- dat_q4 %>% 
+  group_by(Brand, Store) %>% 
+  summarise(quantity_sold = sum(Quantity), 
+            order_value = sum(order_value),
+            average_shipping_time = as.numeric(mean(days_to_ship)))
+```
+
+
+Round to 1 decimal place
+
+```{r round}
+dat_q6_1 <- mutate(dat_q5, across(where(is.numeric), round, 1))
+
+dat_q6_2 <- mutate(dat_q3, across(where(is.numeric), round, 1))
+```
+
+Output
+
+```{r export}
+export_data <- list(dat_q6_1, dat_q6_2)
+
+write_xlsx(export_data, path = 'week2-correct-output.xlsx', format_headers = FALSE)
+```
+
+Both of these could be written within one pipe by chaining the statements.
+
+```{r one-pipe}
+dat %>% 
+  mutate(Brand = str_extract(Model, "[aA-zZ]+"),
+         order_value = Quantity * `Value per Bike`) %>% 
+  group_by(`Bike Type`, Brand) %>% 
+  summarise(quantity_sold = sum(Quantity), 
+            order_value = sum(order_value),
+            average_value = mean(sum(order_value)/sum(Quantity))) %>% 
+  mutate(across(where(is.numeric), round, 1)) %>% 
+  head()
+
+dat %>% 
+  mutate(Brand = str_extract(Model, "[aA-zZ]+"),
+         order_value = Quantity * `Value per Bike`,
+         days_to_ship = `Shipping Date`- `Order Date`) %>% 
+  group_by(Brand, Store) %>% 
+  summarise(quantity_sold = sum(Quantity), 
+            order_value = sum(order_value),
+            average_shipping_time = as.numeric(mean(days_to_ship))) %>% 
+   mutate(across(where(is.numeric), round, 1)) %>% 
+  head()
+  
+```
+
+

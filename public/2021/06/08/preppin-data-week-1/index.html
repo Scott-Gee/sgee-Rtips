@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="theme-color" content="dark">
+    <title> Preppin&#39; Data Week 1 | sgee R Tips</title>
+    
+    
+    
+    <link rel="stylesheet" href="/sass/main.min.c1dd93c9ccf0ca1f09bddc887f771c7b9a9c0b53396e6de3ff357a36239c4ebf.css">
+</head>
+
+    <body class="dark">
+        <nav class="navbar">
+    <div class="container">
+        <div class="flex">
+            <div>
+                <a class="brand" href="/">
+                    
+                    sgee R Tips
+                    </a>
+            </div>
+            <div class="flex">
+                
+                <button id="dark-mode-button"></button>
+            </div>
+            </div>
+    </div>
+</nav>
+        <main>
+            
+
+<div class="container">
+    <article>
+        <header class="article-header">
+            <div class="thumb">
+                <div>
+                    <h1>Preppin&#39; Data Week 1</h1>
+                    <div class="post-meta">
+                        <div>
+                            By  on <time>June 08, 2021</time>
+                        </div>
+                        <div class="tags">
+                            
+                            <a href="/tags/prepping-data/">prepping-data</a>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+    </article>
+
+    <div class="article-post">
+    
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+<link href="/rmarkdown-libs/anchor-sections/anchor-sections.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/anchor-sections/anchor-sections.js"></script>
+
+
+<p>Week 1 requires the ability to read in data, split and clean columns and some date manipulation.</p>
+<p>The challenge can be found <a href="https://preppindata.blogspot.com/2021/01/2021-week-1.html">here</a></p>
+<p>First, load libraries and read in data</p>
+<pre class="r"><code>library(tidyverse)
+library(readxl)
+library(lubridate)
+
+dat &lt;- read_excel(&#39;week1-data.xlsx&#39;)</code></pre>
+<p>Next, use separate to split store and bike</p>
+<pre class="r"><code>dat_q1 &lt;- separate(dat, `Store - Bike`, into = c(&#39;Store&#39;, &#39;Bike&#39;), sep = &#39; - &#39;) 
+  
+head(dat_q1)</code></pre>
+<pre><code>## # A tibble: 6 x 7
+##   `Order ID` `Customer Age` `Bike Value` `Existing Custo… Date               
+##        &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt; &lt;chr&gt;            &lt;dttm&gt;             
+## 1          1             22          481 No               2021-04-25 00:00:00
+## 2          2             28         1825 No               2021-01-23 00:00:00
+## 3          3             51         1903 No               2021-07-03 00:00:00
+## 4          4             59         1059 No               2021-01-24 00:00:00
+## 5          5             44         1764 Yes              2021-08-12 00:00:00
+## 6          6             16          967 Yes              2021-08-15 00:00:00
+## # … with 2 more variables: Store &lt;chr&gt;, Bike &lt;chr&gt;</code></pre>
+<p>Clean up the <code>Bike</code> field with <code>case_when</code> from <code>dplyr</code></p>
+<pre class="r"><code>dat_q2 &lt;- dat_q1 %&gt;% 
+  mutate(Bike = case_when(str_starts(Bike, &#39;Ro&#39;) == TRUE ~ &#39;Road&#39;,
+                          str_starts(Bike, &#39;Mount&#39;) == TRUE ~ &#39;Mountain&#39;,
+                          str_starts(Bike, &#39;Grav&#39;) == TRUE ~ &#39;Gravel&#39;,
+                          TRUE ~ &#39;OTHER&#39;))
+
+head(dat_q2)</code></pre>
+<pre><code>## # A tibble: 6 x 7
+##   `Order ID` `Customer Age` `Bike Value` `Existing Custo… Date               
+##        &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt; &lt;chr&gt;            &lt;dttm&gt;             
+## 1          1             22          481 No               2021-04-25 00:00:00
+## 2          2             28         1825 No               2021-01-23 00:00:00
+## 3          3             51         1903 No               2021-07-03 00:00:00
+## 4          4             59         1059 No               2021-01-24 00:00:00
+## 5          5             44         1764 Yes              2021-08-12 00:00:00
+## 6          6             16          967 Yes              2021-08-15 00:00:00
+## # … with 2 more variables: Store &lt;chr&gt;, Bike &lt;chr&gt;</code></pre>
+<p>Create two different date fields, <code>quarter</code> and <code>day of month</code>. The <code>lubridate</code> package makes this really simple.</p>
+<pre class="r"><code>dat_q3 &lt;- dat_q2 %&gt;% 
+  mutate(quarter = quarter(Date),
+         day_of_month = day(Date))
+
+head(dat_q3)</code></pre>
+<pre><code>## # A tibble: 6 x 9
+##   `Order ID` `Customer Age` `Bike Value` `Existing Custo… Date               
+##        &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt; &lt;chr&gt;            &lt;dttm&gt;             
+## 1          1             22          481 No               2021-04-25 00:00:00
+## 2          2             28         1825 No               2021-01-23 00:00:00
+## 3          3             51         1903 No               2021-07-03 00:00:00
+## 4          4             59         1059 No               2021-01-24 00:00:00
+## 5          5             44         1764 Yes              2021-08-12 00:00:00
+## 6          6             16          967 Yes              2021-08-15 00:00:00
+## # … with 4 more variables: Store &lt;chr&gt;, Bike &lt;chr&gt;, quarter &lt;int&gt;,
+## #   day_of_month &lt;int&gt;</code></pre>
+<p>Remove the first 10 orders</p>
+<pre class="r"><code>dat_q4 &lt;- slice(dat_q3, -(1:10))
+
+head(dat_q4)</code></pre>
+<pre><code>## # A tibble: 6 x 9
+##   `Order ID` `Customer Age` `Bike Value` `Existing Custo… Date               
+##        &lt;dbl&gt;          &lt;dbl&gt;        &lt;dbl&gt; &lt;chr&gt;            &lt;dttm&gt;             
+## 1         11             57          902 No               2021-10-04 00:00:00
+## 2         12             31          946 Yes              2021-01-17 00:00:00
+## 3         13             17         1296 Yes              2021-10-25 00:00:00
+## 4         14             59         1166 Yes              2021-07-18 00:00:00
+## 5         15             24         1781 No               2021-10-10 00:00:00
+## 6         16             59         1074 No               2021-10-06 00:00:00
+## # … with 4 more variables: Store &lt;chr&gt;, Bike &lt;chr&gt;, quarter &lt;int&gt;,
+## #   day_of_month &lt;int&gt;</code></pre>
+<p>Write data to csv file</p>
+<pre class="r"><code>data.table::fwrite(dat_q4, file = &#39;correct-output.csv&#39;)</code></pre>
+<p>This could all be done in one piped call if intended</p>
+<pre class="r"><code>dat %&gt;% 
+  separate(`Store - Bike`, into = c(&#39;Store&#39;, &#39;Bike&#39;), sep = &#39; - &#39;) %&gt;% 
+  mutate(Bike = case_when(str_starts(Bike, &#39;Ro&#39;) == TRUE ~ &#39;Road&#39;,
+                          str_starts(Bike, &#39;Mount&#39;) == TRUE ~ &#39;Mountain&#39;,
+                          str_starts(Bike, &#39;Grav&#39;) == TRUE ~ &#39;Gravel&#39;,
+                          TRUE ~ &#39;OTHER&#39;),
+         quarter = quarter(Date),
+         day_of_month = day(Date)) %&gt;% 
+  slice(-(1:10)) %&gt;% 
+  data.table::fwrite(file = &#39;week1-correct-output.csv&#39;)</code></pre>
+
+    </div>
+</div>
+
+<div class="container">
+    
+    <nav class="flex container suggested">
+        
+        <a rel="prev" href="/2021/06/08/preppin-data-week-2/" title="Previous post (older)">
+            <span>Previous</span>
+            Preppin&#39; Data Week 2
+            </a>
+        
+        
+        
+        <a rel="next" href="/2021/06/08/preppin-data-index/" title="Next post (newer)">
+            <span>Next</span>
+            Preppin&#39; Data Index
+            </a> 
+        
+    </nav>
+    
+</div>
+</main>
+
+
+        </main>
+        <footer class="footer flex">
+    <section class="container">
+        <nav class="footer-links">
+            
+        </nav>
+    </section>
+    
+    <script async src="/js/features.min.f77830aff4bfb7a756b9ef68388f40d2187cb0046d41790785074eb8cd054cc3.js" data-enable-footnotes="true"></script>
+</footer>
+    </body>
+</html>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on sgee R Tips</title>
+    <link>/post/</link>
+    <description>Recent content in Posts on sgee R Tips</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 08 Jun 2021 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Preppin&#39; Data Index</title>
+      <link>/post/preppin-data-index/</link>
+      <pubDate>Tue, 08 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>/post/preppin-data-index/</guid>
+      <description>Links
+Week 1: Problem - Solution
+Week 2: Problem - Solution
+Week 3: Problem - Solution
+Week 4: Problem - Solution
+Week 5: Problem - Solution
+Week 6: Problem - Solution</description>
+    </item>
+    
+    <item>
+      <title>Preppin&#39; Data Week 1</title>
+      <link>/post/preppin-data-week-1/</link>
+      <pubDate>Tue, 08 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>/post/preppin-data-week-1/</guid>
+      <description>Week 1 requires the ability to read in data, split and clean columns and some date manipulation.
+The challenge can be found here
+First, load libraries and read in data
+library(tidyverse) library(readxl) library(lubridate) dat &amp;lt;- read_excel(&amp;#39;week1-data.xlsx&amp;#39;) Next, use separate to split store and bike
+dat_q1 &amp;lt;- separate(dat, `Store - Bike`, into = c(&amp;#39;Store&amp;#39;, &amp;#39;Bike&amp;#39;), sep = &amp;#39; - &amp;#39;) head(dat_q1) ## # A tibble: 6 x 7 ## `Order ID` `Customer Age` `Bike Value` `Existing Custo… Date ## &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;dbl&amp;gt; &amp;lt;chr&amp;gt; &amp;lt;dttm&amp;gt; ## 1 1 22 481 No 2021-04-25 00:00:00 ## 2 2 28 1825 No 2021-01-23 00:00:00 ## 3 3 51 1903 No 2021-07-03 00:00:00 ## 4 4 59 1059 No 2021-01-24 00:00:00 ## 5 5 44 1764 Yes 2021-08-12 00:00:00 ## 6 6 16 967 Yes 2021-08-15 00:00:00 ## # … with 2 more variables: Store &amp;lt;chr&amp;gt;, Bike &amp;lt;chr&amp;gt; Clean up the Bike field with case_when from dplyr</description>
+    </item>
+    
+    <item>
+      <title>Preppin&#39; Data Week 2</title>
+      <link>/post/preppin-data-week-2/</link>
+      <pubDate>Tue, 08 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>/post/preppin-data-week-2/</guid>
+      <description>For week 2 there are lots of calculations to be done which can be done with dplyr and the mutate, group_by and summarise functions.
+The challenge can be found here
+First load libraries and read in data
+library(tidyverse) library(readxl) library(writexl) dat &amp;lt;- read_excel(&amp;#39;week2-data.xlsx&amp;#39;) Next, clean up the model field to leave only the letters. This is done with the regex [aA-zZ]
+dat_q1 &amp;lt;- mutate(dat, Brand = str_extract(Model, &amp;quot;[aA-zZ]+&amp;quot;)) Work out order value by calculating quantity x value per bike</description>
+    </item>
+    
+    <item>
+      <title>Preppin&#39; Data Week 3</title>
+      <link>/post/preppin-data-week-3/</link>
+      <pubDate>Tue, 08 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>/post/preppin-data-week-3/</guid>
+      <description>Week 3 is mostly calculations that can be done with dplyr.
+The challenge can be found here
+First load libraries and read in data. We can use map_df from the purrr package to read in multiple sheets from the same excel file. To use you will need a list, in which the objects you want to be evaluated in a function one-by-one.
+Below we create a list of the names of the sheets in the excel file and then use the read_excel function with each sheet defined as .</description>
+    </item>
+    
+    <item>
+      <title>Preppin&#39; Data Week 4</title>
+      <link>/post/preppin-data-week-4/</link>
+      <pubDate>Tue, 08 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>/post/preppin-data-week-4/</guid>
+      <description>Week 4 is similar at the start to week 3 but requires the use of joins for the first time in these challenges. This can be done with the inner_join function in dplyr. If you know SQL, the syntax will be simple to pick up.
+The challenge can be found here
+First load libraries and read in data. We are using map_df again to read in multiple sheets.</description>
+    </item>
+    
+    <item>
+      <title>Preppin&#39; Data Week 5</title>
+      <link>/post/preppin-data-week-5/</link>
+      <pubDate>Tue, 08 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>/post/preppin-data-week-5/</guid>
+      <description>Week 5 was definitely more challenging than recent weeks and dealing with duplication can be quite hard in R. It can be helpful to group by the columns of interest and then filter using filter(date = max(date) to get the latest record or filter(date = min(date) for the first record for specific columns.
+The challenge can be found here
+First load libraries and read in data
+library(tidyverse) library(readxl) library(lubridate) library(data.</description>
+    </item>
+    
+    <item>
+      <title>Preppin&#39; Data Week 6</title>
+      <link>/post/preppin-data-week-6/</link>
+      <pubDate>Tue, 08 Jun 2021 00:00:00 +0000</pubDate>
+      
+      <guid>/post/preppin-data-week-6/</guid>
+      <description>For week 6 it showed how little code can be used to manipulate and summarise data in R using dplyr. pivot_longer and pivot_wider were also used to restructure data in to the required format.
+First load libraries and read in data. Removing the dollar sign with str_remove_all. The ^ will remove everything but digits (0-9).
+library(tidyverse) library(readxl) library(data.table) dat &amp;lt;- read_excel(&amp;#39;week6-data.xlsx&amp;#39;) #remove dollar sign dat &amp;lt;- dat %&amp;gt;% mutate(MONEY = str_remove_all(MONEY, &amp;quot;[^0-9]&amp;quot;), MONEY = as.</description>
+    </item>
+    
+    <item>
+      <title>Changing the Colour of Titles - ggplot2</title>
+      <link>/post/changing-the-colour-of-titles-ggplot2/</link>
+      <pubDate>Mon, 20 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/post/changing-the-colour-of-titles-ggplot2/</guid>
+      <description>This short post will show how to change the colour of different words in a ggplot2 title. It can be useful to remove the legend and show the colour in the titles to remove some chart junk.
+Using the gapminder dataset and filtering for Argentina and Australia, I use some simple code to create a plot for the change in life expectancy over time.
+library(tidyverse, warn.conflicts = FALSE) ## Warning: package &amp;#39;tidyverse&amp;#39; was built under R version 4.</description>
+    </item>
+    
+  </channel>
+</rss>

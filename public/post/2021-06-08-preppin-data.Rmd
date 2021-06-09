@@ -1,0 +1,88 @@
+---
+title: Preppin' Data Week 1
+author: Scott
+date: '2021-06-08'
+slug: preppin-data-week-1
+categories: []
+tags:
+  - prepping-data
+---
+
+Week 1 requires the ability to read in data, split and clean columns and some date manipulation.
+
+The challenge can be found [here](https://preppindata.blogspot.com/2021/01/2021-week-1.html)
+
+
+First, load libraries and read in data
+
+```{r load-libraries, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(readxl)
+library(lubridate)
+
+dat <- read_excel('week1-data.xlsx')
+```
+
+
+Next, use separate to split store and bike
+
+```{r split-store-bike}
+dat_q1 <- separate(dat, `Store - Bike`, into = c('Store', 'Bike'), sep = ' - ') 
+  
+head(dat_q1)
+```
+
+Clean up the `Bike` field with `case_when` from `dplyr`
+
+```{r clean-bike-field}
+dat_q2 <- dat_q1 %>% 
+  mutate(Bike = case_when(str_starts(Bike, 'Ro') == TRUE ~ 'Road',
+                          str_starts(Bike, 'Mount') == TRUE ~ 'Mountain',
+                          str_starts(Bike, 'Grav') == TRUE ~ 'Gravel',
+                          TRUE ~ 'OTHER'))
+
+head(dat_q2)
+
+```
+
+Create two different date fields, `quarter` and `day of month`. The `lubridate` package makes this really simple.
+
+```{r create-data-fields}
+dat_q3 <- dat_q2 %>% 
+  mutate(quarter = quarter(Date),
+         day_of_month = day(Date))
+
+head(dat_q3)
+```
+
+Remove the first 10 orders
+
+```{r remove-first-10}
+dat_q4 <- slice(dat_q3, -(1:10))
+
+head(dat_q4)
+```
+
+Write data to csv file
+
+```{r write-csv}
+data.table::fwrite(dat_q4, file = 'correct-output.csv')
+```
+
+
+This could all be done in one piped call if intended
+
+```{r one-pipe, eval=FALSE}
+dat %>% 
+  separate(`Store - Bike`, into = c('Store', 'Bike'), sep = ' - ') %>% 
+  mutate(Bike = case_when(str_starts(Bike, 'Ro') == TRUE ~ 'Road',
+                          str_starts(Bike, 'Mount') == TRUE ~ 'Mountain',
+                          str_starts(Bike, 'Grav') == TRUE ~ 'Gravel',
+                          TRUE ~ 'OTHER'),
+         quarter = quarter(Date),
+         day_of_month = day(Date)) %>% 
+  slice(-(1:10)) %>% 
+  data.table::fwrite(file = 'week1-correct-output.csv')
+  
+   
+```

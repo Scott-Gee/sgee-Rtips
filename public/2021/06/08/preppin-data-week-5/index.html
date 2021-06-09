@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="theme-color" content="dark">
+    <title> Preppin&#39; Data Week 5 | sgee R Tips</title>
+    
+    
+    
+    <link rel="stylesheet" href="/sass/main.min.c1dd93c9ccf0ca1f09bddc887f771c7b9a9c0b53396e6de3ff357a36239c4ebf.css">
+</head>
+
+    <body class="dark">
+        <nav class="navbar">
+    <div class="container">
+        <div class="flex">
+            <div>
+                <a class="brand" href="/">
+                    
+                    sgee R Tips
+                    </a>
+            </div>
+            <div class="flex">
+                
+                <button id="dark-mode-button"></button>
+            </div>
+            </div>
+    </div>
+</nav>
+        <main>
+            
+
+<div class="container">
+    <article>
+        <header class="article-header">
+            <div class="thumb">
+                <div>
+                    <h1>Preppin&#39; Data Week 5</h1>
+                    <div class="post-meta">
+                        <div>
+                            By  on <time>June 08, 2021</time>
+                        </div>
+                        <div class="tags">
+                            
+                            <a href="/tags/prepping-data/">prepping-data</a>
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+    </article>
+
+    <div class="article-post">
+    
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+<link href="/rmarkdown-libs/anchor-sections/anchor-sections.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/anchor-sections/anchor-sections.js"></script>
+
+
+<p>Week 5 was definitely more challenging than recent weeks and dealing with duplication can be quite hard in R. It can be helpful to group by the columns of interest and then filter using <code>filter(date = max(date)</code> to get the latest record or <code>filter(date = min(date)</code> for the first record for specific columns.</p>
+<p>The challenge can be found <a href="https://preppindata.blogspot.com/2021/01/2021-week-5.html">here</a></p>
+<p>First load libraries and read in data</p>
+<pre class="r"><code>library(tidyverse)
+library(readxl)
+library(lubridate)
+library(data.table)
+
+dat &lt;- read_excel(&#39;week5-data.xlsx&#39;)</code></pre>
+<p>For each <code>client</code>, work out the most recent <code>account manager</code>. For the client, account manager and date, get all separate records. Next filter for the record with the latest date for these three columns</p>
+<pre class="r"><code>dat_q1 &lt;- dat %&gt;%
+  select(Client, `Account Manager`, `From Date`) %&gt;% 
+  distinct() %&gt;% 
+  group_by(Client) %&gt;% 
+  filter(`From Date` == max(`From Date`))</code></pre>
+<p>Filter/replace the data so only the most recent <code>account manager</code> remains. This has been done by grouping by the training session, email, name and client and then only retuning the latest record for each of these.</p>
+<pre class="r"><code>dat_q2 &lt;- dat %&gt;% 
+  group_by(Training, `Contact Email`, `Contact Name`, Client) %&gt;% 
+  filter(`From Date` == max(`From Date`)) %&gt;% 
+  inner_join(dat_q1, by = &#39;Client&#39;) %&gt;% 
+  select(-ends_with(&quot;.x&quot;)) %&gt;% 
+  rename(`From Date` = `From Date.y`,
+         `Account Manager` = `Account Manager.y`)</code></pre>
+<p>Ensure the most recent client ID remains. This is using a similar method to before, getting the latest client ID for a client and then joining this back to the dataframe with the most recent account manager.</p>
+<pre class="r"><code>dat_q3_1 &lt;- dat %&gt;% 
+  select(Client, `Client ID`, `From Date`) %&gt;% 
+  distinct() %&gt;% 
+  ungroup() %&gt;% 
+  group_by(Client) %&gt;% 
+  filter(`From Date` == max(`From Date`)) %&gt;% 
+  arrange(Client)
+
+dat_q3_2 &lt;- dat_q2 %&gt;% 
+  ungroup() %&gt;% 
+  inner_join(dat_q3_1, by = c(&#39;Client&#39;, &#39;From Date&#39;)) %&gt;% 
+  select(-`Client ID.x`) %&gt;% 
+  rename(`Client ID` = `Client ID.y`)</code></pre>
+<p>Output</p>
+<pre class="r"><code>fwrite(dat_q3_2, file = &#39;week5-correct-output.csv&#39;)</code></pre>
+
+    </div>
+</div>
+
+<div class="container">
+    
+    <nav class="flex container suggested">
+        
+        <a rel="prev" href="/2021/06/08/preppin-data-week-6/" title="Previous post (older)">
+            <span>Previous</span>
+            Preppin&#39; Data Week 6
+            </a>
+        
+        
+        
+        <a rel="next" href="/2021/06/08/preppin-data-week-4/" title="Next post (newer)">
+            <span>Next</span>
+            Preppin&#39; Data Week 4
+            </a> 
+        
+    </nav>
+    
+</div>
+</main>
+
+
+        </main>
+        <footer class="footer flex">
+    <section class="container">
+        <nav class="footer-links">
+            
+        </nav>
+    </section>
+    
+    <script async src="/js/features.min.f77830aff4bfb7a756b9ef68388f40d2187cb0046d41790785074eb8cd054cc3.js" data-enable-footnotes="true"></script>
+</footer>
+    </body>
+</html>

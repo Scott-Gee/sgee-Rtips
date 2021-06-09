@@ -1,0 +1,103 @@
+---
+title: Preppin' Data Week 3
+author: Scott
+date: '2021-06-08'
+slug: preppin-data-week-3
+categories:
+  - R
+tags:
+  - prepping-data
+---
+
+Week 3 is mostly calculations that can be done with `dplyr`. 
+
+The challenge can be found [here](https://preppindata.blogspot.com/2021/01/2021-week-3.html)
+
+First load libraries and read in data. We can use `map_df` from the `purrr` package to read in multiple sheets from the same excel file. To use you will need a list, in which the objects you want to be evaluated in a function one-by-one. 
+
+Below we create a list of the names of the sheets in the excel file and then use the `read_excel` function with each sheet defined as `.x`. To make this a dataframe we use `map_df` and create a store column with the names of the list that have been created with `set_names`
+
+```{r load-libraries, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(readxl)
+library(lubridate)
+library(data.table)
+
+sheet_names <- excel_sheets('week3-data.xlsx')
+
+sheet_names <- set_names(sheet_names, sheet_names) #this ensures that we can use an id column as the store name
+
+dat <- map_df(sheet_names, ~ read_excel('week3-data.xlsx', sheet = .x), .id = 'store')
+```
+
+Next pivot new and existing and split into customer type and product
+
+
+```{r pivot-new-existing}
+dat_q1 <- dat %>% 
+  pivot_longer(`New - Saddles`:`Existing - Bags`, names_to = 'product_type', values_to = 'sales') %>% 
+  separate(product_type, into = c('customer_type', 'product')) 
+  
+```
+
+Rename `sales` to `Products Sold`
+
+```{r rename-column}
+dat_q2 <- rename(dat_q1, `Products Sold` = sales)
+
+```
+
+```{r}
+dat_q5 <- mutate(dat_q2, quarter = quarter(Date))
+```
+
+Get aggregated products sold by:
+`Product`, `Quarter`
+
+```{r aggregate-1}
+dat_q6_1 <- dat_q5 %>% 
+  group_by(product, quarter) %>% 
+  summarise(`Products Sold` = sum(`Products Sold`))
+
+```
+
+And then `Store`, `Customer Type`, `Product`
+
+
+```{r aggregate-2}
+dat_q6_2 <- dat_q5 %>% 
+  group_by(store, customer_type, product) %>% 
+  summarise(`Products Sold` = sum(`Products Sold`))
+```
+
+
+Export data 
+
+
+```{r}
+fwrite(dat_q6_1, file = 'week3-correct-output-1.csv')
+
+fwrite(dat_q6_2, file = 'correct-output-2.csv')
+```
+
+
+These could both be written within one pipe like the below
+
+
+```{r one-pipe}
+dat %>% 
+  pivot_longer(`New - Saddles`:`Existing - Bags`, names_to = 'product_type', values_to = 'sales') %>% 
+  separate(product_type, into = c('customer_type', 'product')) %>%
+  rename(`Products Sold` = sales) %>% 
+  mutate(quarter = quarter(Date)) %>% 
+  group_by(product, quarter) %>% 
+  summarise(`Products Sold` = sum(`Products Sold`)) 
+
+dat %>% 
+  pivot_longer(`New - Saddles`:`Existing - Bags`, names_to = 'product_type', values_to = 'sales') %>% 
+  separate(product_type, into = c('customer_type', 'product')) %>%
+  rename(`Products Sold` = sales) %>% 
+  mutate(quarter = quarter(Date)) %>%
+  group_by(store, customer_type, product) %>% 
+  summarise(`Products Sold` = sum(`Products Sold`))
+```
