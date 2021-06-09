@@ -1,7 +1,7 @@
 ---
 title: Preppin' Data Index
 author: ''
-date: '2021-06-08'
+date: '2021-01-01'
 slug: preppin-data-index
 categories:
   - R

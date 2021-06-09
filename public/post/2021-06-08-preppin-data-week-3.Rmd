@@ -1,7 +1,7 @@
 ---
 title: Preppin' Data Week 3
 author: Scott
-date: '2021-06-08'
+date: '2021-06-06'
 slug: preppin-data-week-3
 categories:
   - R

@@ -12,21 +12,6 @@
     
     
     <item>
-      <title>Preppin&#39; Data Index</title>
-      <link>/post/preppin-data-index/</link>
-      <pubDate>Tue, 08 Jun 2021 00:00:00 +0000</pubDate>
-      
-      <guid>/post/preppin-data-index/</guid>
-      <description>Links
-Week 1: Problem - Solution
-Week 2: Problem - Solution
-Week 3: Problem - Solution
-Week 4: Problem - Solution
-Week 5: Problem - Solution
-Week 6: Problem - Solution</description>
-    </item>
-    
-    <item>
       <title>Preppin&#39; Data Week 1</title>
       <link>/post/preppin-data-week-1/</link>
       <pubDate>Tue, 08 Jun 2021 00:00:00 +0000</pubDate>
@@ -96,6 +81,21 @@ library(tidyverse) library(readxl) library(lubridate) library(data.</description
       <description>For week 6 it showed how little code can be used to manipulate and summarise data in R using dplyr. pivot_longer and pivot_wider were also used to restructure data in to the required format.
 First load libraries and read in data. Removing the dollar sign with str_remove_all. The ^ will remove everything but digits (0-9).
 library(tidyverse) library(readxl) library(data.table) dat &amp;lt;- read_excel(&amp;#39;week6-data.xlsx&amp;#39;) #remove dollar sign dat &amp;lt;- dat %&amp;gt;% mutate(MONEY = str_remove_all(MONEY, &amp;quot;[^0-9]&amp;quot;), MONEY = as.</description>
+    </item>
+    
+    <item>
+      <title>Preppin&#39; Data Index</title>
+      <link>/post/preppin-data-index/</link>
+      <pubDate>Fri, 01 Jan 2021 00:00:00 +0000</pubDate>
+      
+      <guid>/post/preppin-data-index/</guid>
+      <description>Links
+Week 1: Problem - Solution
+Week 2: Problem - Solution
+Week 3: Problem - Solution
+Week 4: Problem - Solution
+Week 5: Problem - Solution
+Week 6: Problem - Solution</description>
     </item>
     
     <item>

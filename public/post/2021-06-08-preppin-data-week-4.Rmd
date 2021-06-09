@@ -1,7 +1,7 @@
 ---
 title: Preppin' Data Week 4
 author: 'Scott Gee'
-date: '2021-06-08'
+date: '2021-06-07'
 slug: preppin-data-week-4
 categories: 
   - R
