@@ -1,6 +1,6 @@
 baseurl: "/"
 languageCode: "en-us"
-title: "sgee R Tips"
+title: "sgee R"
 theme: "tania"
 paginate: 6
 googleAnalytics: UA-164754969-1
