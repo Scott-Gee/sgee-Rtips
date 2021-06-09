@@ -20,7 +20,7 @@ menu:
     - name: Posts
       url: "/articles/"
     - name: Preppin' Data
-      url: "/2021/06/08/preppin-data-index/"
+      url: "/post/preppin-data-index/"
     - name: Tags
       url: "/tags/"  
 

@@ -5,13 +5,13 @@
     <description>Recent content on sgee</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 08 Jun 2021 00:00:00 +0000</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 09 Jun 2021 00:00:00 +0000</lastBuildDate><atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     <item>
-    <title>Preppin&#39; Data Week 1</title>
-    <link>/post/preppin-data-week-1/</link>
-    <pubDate>Tue, 08 Jun 2021 00:00:00 +0000</pubDate>
+    <title>Preppin&#39; Data Week 6</title>
+    <link>/post/preppin-data-week-6/</link>
+    <pubDate>Wed, 09 Jun 2021 00:00:00 +0000</pubDate>
     <author>Scott</author>
-    <guid>/post/preppin-data-week-1/</guid>
+    <guid>/post/preppin-data-week-6/</guid>
     <description>
         
 &lt;script src=&#34;/rmarkdown-libs/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
@@ -19,101 +19,73 @@
 &lt;script src=&#34;/rmarkdown-libs/anchor-sections/anchor-sections.js&#34;&gt;&lt;/script&gt;
 
 
-&lt;p&gt;Week 1 requires the ability to read in data, split and clean columns and some date manipulation.&lt;/p&gt;
-&lt;p&gt;The challenge can be found &lt;a href=&#34;https://preppindata.blogspot.com/2021/01/2021-week-1.html&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;First, load libraries and read in data&lt;/p&gt;
+&lt;p&gt;For week 6 it showed how little code can be used to manipulate and summarise data in R using &lt;code&gt;dplyr&lt;/code&gt;. &lt;code&gt;pivot_longer&lt;/code&gt; and &lt;code&gt;pivot_wider&lt;/code&gt; were also used to restructure data in to the required format.&lt;/p&gt;
+&lt;p&gt;First load libraries and read in data. Removing the dollar sign with &lt;code&gt;str_remove_all&lt;/code&gt;. The &lt;code&gt;^&lt;/code&gt; will remove everything but digits (0-9).&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(tidyverse)
 library(readxl)
-library(lubridate)
+library(data.table)
 
-dat &amp;lt;- read_excel(&amp;#39;week1-data.xlsx&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Next, use separate to split store and bike&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q1 &amp;lt;- separate(dat, `Store - Bike`, into = c(&amp;#39;Store&amp;#39;, &amp;#39;Bike&amp;#39;), sep = &amp;#39; - &amp;#39;) 
-  
-head(dat_q1)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## # A tibble: 6 x 7
-##   `Order ID` `Customer Age` `Bike Value` `Existing Custo… Date               
-##        &amp;lt;dbl&amp;gt;          &amp;lt;dbl&amp;gt;        &amp;lt;dbl&amp;gt; &amp;lt;chr&amp;gt;            &amp;lt;dttm&amp;gt;             
-## 1          1             22          481 No               2021-04-25 00:00:00
-## 2          2             28         1825 No               2021-01-23 00:00:00
-## 3          3             51         1903 No               2021-07-03 00:00:00
-## 4          4             59         1059 No               2021-01-24 00:00:00
-## 5          5             44         1764 Yes              2021-08-12 00:00:00
-## 6          6             16          967 Yes              2021-08-15 00:00:00
-## # … with 2 more variables: Store &amp;lt;chr&amp;gt;, Bike &amp;lt;chr&amp;gt;&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Clean up the &lt;code&gt;Bike&lt;/code&gt; field with &lt;code&gt;case_when&lt;/code&gt; from &lt;code&gt;dplyr&lt;/code&gt;&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q2 &amp;lt;- dat_q1 %&amp;gt;% 
-  mutate(Bike = case_when(str_starts(Bike, &amp;#39;Ro&amp;#39;) == TRUE ~ &amp;#39;Road&amp;#39;,
-                          str_starts(Bike, &amp;#39;Mount&amp;#39;) == TRUE ~ &amp;#39;Mountain&amp;#39;,
-                          str_starts(Bike, &amp;#39;Grav&amp;#39;) == TRUE ~ &amp;#39;Gravel&amp;#39;,
-                          TRUE ~ &amp;#39;OTHER&amp;#39;))
+dat &amp;lt;- read_excel(&amp;#39;week6-data.xlsx&amp;#39;)
 
-head(dat_q2)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## # A tibble: 6 x 7
-##   `Order ID` `Customer Age` `Bike Value` `Existing Custo… Date               
-##        &amp;lt;dbl&amp;gt;          &amp;lt;dbl&amp;gt;        &amp;lt;dbl&amp;gt; &amp;lt;chr&amp;gt;            &amp;lt;dttm&amp;gt;             
-## 1          1             22          481 No               2021-04-25 00:00:00
-## 2          2             28         1825 No               2021-01-23 00:00:00
-## 3          3             51         1903 No               2021-07-03 00:00:00
-## 4          4             59         1059 No               2021-01-24 00:00:00
-## 5          5             44         1764 Yes              2021-08-12 00:00:00
-## 6          6             16          967 Yes              2021-08-15 00:00:00
-## # … with 2 more variables: Store &amp;lt;chr&amp;gt;, Bike &amp;lt;chr&amp;gt;&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Create two different date fields, &lt;code&gt;quarter&lt;/code&gt; and &lt;code&gt;day of month&lt;/code&gt;. The &lt;code&gt;lubridate&lt;/code&gt; package makes this really simple.&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q3 &amp;lt;- dat_q2 %&amp;gt;% 
-  mutate(quarter = quarter(Date),
-         day_of_month = day(Date))
-
-head(dat_q3)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## # A tibble: 6 x 9
-##   `Order ID` `Customer Age` `Bike Value` `Existing Custo… Date               
-##        &amp;lt;dbl&amp;gt;          &amp;lt;dbl&amp;gt;        &amp;lt;dbl&amp;gt; &amp;lt;chr&amp;gt;            &amp;lt;dttm&amp;gt;             
-## 1          1             22          481 No               2021-04-25 00:00:00
-## 2          2             28         1825 No               2021-01-23 00:00:00
-## 3          3             51         1903 No               2021-07-03 00:00:00
-## 4          4             59         1059 No               2021-01-24 00:00:00
-## 5          5             44         1764 Yes              2021-08-12 00:00:00
-## 6          6             16          967 Yes              2021-08-15 00:00:00
-## # … with 4 more variables: Store &amp;lt;chr&amp;gt;, Bike &amp;lt;chr&amp;gt;, quarter &amp;lt;int&amp;gt;,
-## #   day_of_month &amp;lt;int&amp;gt;&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Remove the first 10 orders&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q4 &amp;lt;- slice(dat_q3, -(1:10))
-
-head(dat_q4)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## # A tibble: 6 x 9
-##   `Order ID` `Customer Age` `Bike Value` `Existing Custo… Date               
-##        &amp;lt;dbl&amp;gt;          &amp;lt;dbl&amp;gt;        &amp;lt;dbl&amp;gt; &amp;lt;chr&amp;gt;            &amp;lt;dttm&amp;gt;             
-## 1         11             57          902 No               2021-10-04 00:00:00
-## 2         12             31          946 Yes              2021-01-17 00:00:00
-## 3         13             17         1296 Yes              2021-10-25 00:00:00
-## 4         14             59         1166 Yes              2021-07-18 00:00:00
-## 5         15             24         1781 No               2021-10-10 00:00:00
-## 6         16             59         1074 No               2021-10-06 00:00:00
-## # … with 4 more variables: Store &amp;lt;chr&amp;gt;, Bike &amp;lt;chr&amp;gt;, quarter &amp;lt;int&amp;gt;,
-## #   day_of_month &amp;lt;int&amp;gt;&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Write data to csv file&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;data.table::fwrite(dat_q4, file = &amp;#39;correct-output.csv&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;This could all be done in one piped call if intended&lt;/p&gt;
+#remove dollar sign
+dat &amp;lt;- dat %&amp;gt;% 
+  mutate(MONEY = str_remove_all(MONEY, &amp;quot;[^0-9]&amp;quot;),
+         MONEY = as.integer(MONEY))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Create a rank by money earned on all tours, then &lt;code&gt;group_by&lt;/code&gt; the tour and create a tour rank. After this the summary statistics can be created with calculations.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;n() will give the count, if the data is grouped it will count the number of observations within the group(s)&lt;/code&gt;&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q1 &amp;lt;- dat %&amp;gt;% 
+  mutate(overall_rank = rank(desc(MONEY))) %&amp;gt;% 
+  group_by(TOUR) %&amp;gt;% 
+  mutate(tour_rank = rank(desc(MONEY))) %&amp;gt;%  
+  summarise(total_prize_money = sum(MONEY),
+            total_player = n(),
+            total_events = sum(EVENTS),
+            average_prize_money = sum(MONEY)/sum(EVENTS),
+            average_ranking = mean(overall_rank - tour_rank)) &lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## `summarise()` ungrouping output (override with `.groups` argument)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Pivot the data to make it long and then switch the tour names from rows to columns&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q3 &amp;lt;- dat_q1 %&amp;gt;% 
+  pivot_longer(-TOUR) %&amp;gt;% 
+  pivot_wider(names_from = TOUR, values_from = value) &lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The difference between tours can be created with a simple &lt;code&gt;mutate&lt;/code&gt; call&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q4 &amp;lt;- dat_q3 %&amp;gt;% 
+  mutate(difference = LPGA - PGA) %&amp;gt;% 
+  rename(Measure = name)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Output the data&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;fwrite(dat_q4, &amp;#39;week6-correct-output.csv&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;You can answer this within one chunk of code using multiple pipes like below.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat %&amp;gt;% 
-  separate(`Store - Bike`, into = c(&amp;#39;Store&amp;#39;, &amp;#39;Bike&amp;#39;), sep = &amp;#39; - &amp;#39;) %&amp;gt;% 
-  mutate(Bike = case_when(str_starts(Bike, &amp;#39;Ro&amp;#39;) == TRUE ~ &amp;#39;Road&amp;#39;,
-                          str_starts(Bike, &amp;#39;Mount&amp;#39;) == TRUE ~ &amp;#39;Mountain&amp;#39;,
-                          str_starts(Bike, &amp;#39;Grav&amp;#39;) == TRUE ~ &amp;#39;Gravel&amp;#39;,
-                          TRUE ~ &amp;#39;OTHER&amp;#39;),
-         quarter = quarter(Date),
-         day_of_month = day(Date)) %&amp;gt;% 
-  slice(-(1:10)) %&amp;gt;% 
-  data.table::fwrite(file = &amp;#39;week1-correct-output.csv&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+  mutate(overall_rank = rank(desc(MONEY))) %&amp;gt;% 
+  group_by(TOUR) %&amp;gt;% 
+  mutate(tour_rank = rank(desc(MONEY))) %&amp;gt;%  
+  summarise(total_prize_money = sum(MONEY),
+            total_player = n(),
+            total_events = sum(EVENTS),
+            average_prize_money = sum(MONEY)/sum(EVENTS),
+            average_ranking = mean(overall_rank - tour_rank)) %&amp;gt;% 
+  pivot_longer(-TOUR) %&amp;gt;% 
+  pivot_wider(names_from = TOUR, values_from = value) %&amp;gt;% 
+  mutate(difference = LPGA - PGA) %&amp;gt;% 
+  rename(Measure = name)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## `summarise()` ungrouping output (override with `.groups` argument)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## # A tibble: 5 x 4
+##   Measure                   LPGA          PGA   difference
+##   &amp;lt;chr&amp;gt;                    &amp;lt;dbl&amp;gt;        &amp;lt;dbl&amp;gt;        &amp;lt;dbl&amp;gt;
+## 1 total_prize_money   58410411   256726356    -198315945  
+## 2 total_player             100         100             0  
+## 3 total_events            2266        2282           -16  
+## 4 average_prize_money    25777.     112501.       -86724. 
+## 5 average_ranking           96.1         3.87         92.3&lt;/code&gt;&lt;/pre&gt;
 
     </description>
     </item>
     
     <item>
-    <title>Preppin&#39; Data Week 2</title>
-    <link>/post/preppin-data-week-2/</link>
+    <title>Preppin&#39; Data Week 5</title>
+    <link>/post/preppin-data-week-5/</link>
     <pubDate>Tue, 08 Jun 2021 00:00:00 +0000</pubDate>
     <author>Scott</author>
-    <guid>/post/preppin-data-week-2/</guid>
+    <guid>/post/preppin-data-week-5/</guid>
     <description>
         
 &lt;script src=&#34;/rmarkdown-libs/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
@@ -121,85 +93,113 @@ head(dat_q4)&lt;/code&gt;&lt;/pre&gt;
 &lt;script src=&#34;/rmarkdown-libs/anchor-sections/anchor-sections.js&#34;&gt;&lt;/script&gt;
 
 
-&lt;p&gt;For week 2 there are lots of calculations to be done which can be done with &lt;code&gt;dplyr&lt;/code&gt; and the &lt;code&gt;mutate&lt;/code&gt;, &lt;code&gt;group_by&lt;/code&gt; and &lt;code&gt;summarise&lt;/code&gt; functions.&lt;/p&gt;
-&lt;p&gt;The challenge can be found &lt;a href=&#34;https://preppindata.blogspot.com/2021/01/2021-week-2.html&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Week 5 was definitely more challenging than recent weeks and dealing with duplication can be quite hard in R. It can be helpful to group by the columns of interest and then filter using &lt;code&gt;filter(date = max(date)&lt;/code&gt; to get the latest record or &lt;code&gt;filter(date = min(date)&lt;/code&gt; for the first record for specific columns.&lt;/p&gt;
+&lt;p&gt;The challenge can be found &lt;a href=&#34;https://preppindata.blogspot.com/2021/01/2021-week-.html&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;First load libraries and read in data&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(tidyverse)
 library(readxl)
-library(writexl)
+library(lubridate)
+library(data.table)
 
-dat &amp;lt;- read_excel(&amp;#39;week2-data.xlsx&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Next, clean up the &lt;code&gt;model&lt;/code&gt; field to leave only the letters. This is done with the regex [aA-zZ]&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q1 &amp;lt;- mutate(dat, Brand = str_extract(Model, &amp;quot;[aA-zZ]+&amp;quot;))&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Work out order value by calculating quantity x value per bike&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q2 &amp;lt;- mutate(dat_q1, order_value = Quantity * `Value per Bike`)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Aggregate quantity sold, order value, average value by brand and bike type&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q3 &amp;lt;- dat_q2 %&amp;gt;% 
-  group_by(`Bike Type`, Brand) %&amp;gt;% 
-  summarise(quantity_sold = sum(Quantity), 
-            order_value = sum(order_value),
-            average_value = mean(sum(order_value)/sum(Quantity)))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## `summarise()` regrouping output by &amp;#39;Bike Type&amp;#39; (override with `.groups` argument)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Calculate days to ship with shipping and order dates&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q4 &amp;lt;- dat_q2 %&amp;gt;% 
-  mutate(days_to_ship = `Shipping Date`- `Order Date`)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Aggregate order value, quantity sold and average days to ship by brand and store&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q5 &amp;lt;- dat_q4 %&amp;gt;% 
-  group_by(Brand, Store) %&amp;gt;% 
-  summarise(quantity_sold = sum(Quantity), 
-            order_value = sum(order_value),
-            average_shipping_time = as.numeric(mean(days_to_ship)))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## `summarise()` regrouping output by &amp;#39;Brand&amp;#39; (override with `.groups` argument)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Round to 1 decimal place&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q6_1 &amp;lt;- mutate(dat_q5, across(where(is.numeric), round, 1))
+dat &amp;lt;- read_excel(&amp;#39;week5-data.xlsx&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;For each &lt;code&gt;client&lt;/code&gt;, work out the most recent &lt;code&gt;account manager&lt;/code&gt;. For the client, account manager and date, get all separate records. Next filter for the record with the latest date for these three columns&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q1 &amp;lt;- dat %&amp;gt;%
+  select(Client, `Account Manager`, `From Date`) %&amp;gt;% 
+  distinct() %&amp;gt;% 
+  group_by(Client) %&amp;gt;% 
+  filter(`From Date` == max(`From Date`))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Filter/replace the data so only the most recent &lt;code&gt;account manager&lt;/code&gt; remains. This has been done by grouping by the training session, email, name and client and then only retuning the latest record for each of these.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q2 &amp;lt;- dat %&amp;gt;% 
+  group_by(Training, `Contact Email`, `Contact Name`, Client) %&amp;gt;% 
+  filter(`From Date` == max(`From Date`)) %&amp;gt;% 
+  inner_join(dat_q1, by = &amp;#39;Client&amp;#39;) %&amp;gt;% 
+  select(-ends_with(&amp;quot;.x&amp;quot;)) %&amp;gt;% 
+  rename(`From Date` = `From Date.y`,
+         `Account Manager` = `Account Manager.y`)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Ensure the most recent client ID remains. This is using a similar method to before, getting the latest client ID for a client and then joining this back to the dataframe with the most recent account manager.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q3_1 &amp;lt;- dat %&amp;gt;% 
+  select(Client, `Client ID`, `From Date`) %&amp;gt;% 
+  distinct() %&amp;gt;% 
+  ungroup() %&amp;gt;% 
+  group_by(Client) %&amp;gt;% 
+  filter(`From Date` == max(`From Date`)) %&amp;gt;% 
+  arrange(Client)
 
-dat_q6_2 &amp;lt;- mutate(dat_q3, across(where(is.numeric), round, 1))&lt;/code&gt;&lt;/pre&gt;
+dat_q3_2 &amp;lt;- dat_q2 %&amp;gt;% 
+  ungroup() %&amp;gt;% 
+  inner_join(dat_q3_1, by = c(&amp;#39;Client&amp;#39;, &amp;#39;From Date&amp;#39;)) %&amp;gt;% 
+  select(-`Client ID.x`) %&amp;gt;% 
+  rename(`Client ID` = `Client ID.y`)&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Output&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;export_data &amp;lt;- list(dat_q6_1, dat_q6_2)
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;fwrite(dat_q3_2, file = &amp;#39;week5-correct-output.csv&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 
-write_xlsx(export_data, path = &amp;#39;week2-correct-output.xlsx&amp;#39;, format_headers = FALSE)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Both of these could be written within one pipe by chaining the statements.&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat %&amp;gt;% 
-  mutate(Brand = str_extract(Model, &amp;quot;[aA-zZ]+&amp;quot;),
-         order_value = Quantity * `Value per Bike`) %&amp;gt;% 
-  group_by(`Bike Type`, Brand) %&amp;gt;% 
-  summarise(quantity_sold = sum(Quantity), 
-            order_value = sum(order_value),
-            average_value = mean(sum(order_value)/sum(Quantity))) %&amp;gt;% 
-  mutate(across(where(is.numeric), round, 1)) %&amp;gt;% 
-  head()&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## `summarise()` regrouping output by &amp;#39;Bike Type&amp;#39; (override with `.groups` argument)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## # A tibble: 6 x 5
-## # Groups:   Bike Type [2]
-##   `Bike Type` Brand quantity_sold order_value average_value
-##   &amp;lt;chr&amp;gt;       &amp;lt;chr&amp;gt;         &amp;lt;dbl&amp;gt;       &amp;lt;dbl&amp;gt;         &amp;lt;dbl&amp;gt;
-## 1 Gravel      BROM            186      433885         2333.
-## 2 Gravel      GIA             323      733087         2270.
-## 3 Gravel      KONA            324      791841         2444 
-## 4 Gravel      ORRO            151      411644         2726.
-## 5 Gravel      SPEC            974     2295397         2357.
-## 6 Mountain    BROM            277      674770         2436&lt;/code&gt;&lt;/pre&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat %&amp;gt;% 
-  mutate(Brand = str_extract(Model, &amp;quot;[aA-zZ]+&amp;quot;),
-         order_value = Quantity * `Value per Bike`,
-         days_to_ship = `Shipping Date`- `Order Date`) %&amp;gt;% 
-  group_by(Brand, Store) %&amp;gt;% 
-  summarise(quantity_sold = sum(Quantity), 
-            order_value = sum(order_value),
-            average_shipping_time = as.numeric(mean(days_to_ship))) %&amp;gt;% 
-   mutate(across(where(is.numeric), round, 1)) %&amp;gt;% 
-  head()&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## `summarise()` regrouping output by &amp;#39;Brand&amp;#39; (override with `.groups` argument)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## # A tibble: 6 x 5
-## # Groups:   Brand [2]
-##   Brand Store      quantity_sold order_value average_shipping_time
-##   &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt;              &amp;lt;dbl&amp;gt;       &amp;lt;dbl&amp;gt;                 &amp;lt;dbl&amp;gt;
-## 1 BROM  Birmingham           155      349759                  11.8
-## 2 BROM  Leeds                150      389116                   9.8
-## 3 BROM  London               133      324635                  11  
-## 4 BROM  Manchester           137      339832                  10.9
-## 5 BROM  York                 145      361852                   9.8
-## 6 GIA   Birmingham           269      581733                   9.9&lt;/code&gt;&lt;/pre&gt;
+    </description>
+    </item>
+    
+    <item>
+    <title>Preppin&#39; Data Week 4</title>
+    <link>/post/preppin-data-week-4/</link>
+    <pubDate>Mon, 07 Jun 2021 00:00:00 +0000</pubDate>
+    <author>Scott Gee</author>
+    <guid>/post/preppin-data-week-4/</guid>
+    <description>
+        
+&lt;script src=&#34;/rmarkdown-libs/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
+&lt;link href=&#34;/rmarkdown-libs/anchor-sections/anchor-sections.css&#34; rel=&#34;stylesheet&#34; /&gt;
+&lt;script src=&#34;/rmarkdown-libs/anchor-sections/anchor-sections.js&#34;&gt;&lt;/script&gt;
+
+
+&lt;p&gt;Week 4 is similar at the start to week 3 but requires the use of joins for the first time in these challenges. This can be done with the &lt;code&gt;inner_join&lt;/code&gt; function in &lt;code&gt;dplyr&lt;/code&gt;. If you know SQL, the syntax will be simple to pick up.&lt;/p&gt;
+&lt;p&gt;The challenge can be found &lt;a href=&#34;https://preppindata.blogspot.com/2021/01/2021-week-4.html&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;First load libraries and read in data. We are using &lt;code&gt;map_df&lt;/code&gt; again to read in multiple sheets. If you haven’t looked at how to do this in week 3 head &lt;a href=&#34;/2021/06/08/preppin-data-week-3/&#34;&gt;there&lt;/a&gt; before reading this week.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(tidyverse)
+library(readxl)
+library(lubridate)
+library(data.table)
+
+sheet_names &amp;lt;- excel_sheets(&amp;#39;week4-data.xlsx&amp;#39;)[1:5]
+
+sheet_names &amp;lt;- set_names(sheet_names, sheet_names) #this ensures that we can use an id column as the store name
+
+dat &amp;lt;- map_df(sheet_names, ~ read_excel(&amp;#39;week4-data.xlsx&amp;#39;, sheet = .x), .id = &amp;#39;store&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Next pivot the product columns&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q2 &amp;lt;- pivot_longer(dat, `New - Saddles`:`Existing - Bags`)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Split field with customer type and product using &lt;code&gt;separate&lt;/code&gt; and rename &lt;code&gt;value&lt;/code&gt; column to products sold&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q3 &amp;lt;- separate(dat_q2, name, into = c(&amp;#39;customer_type&amp;#39;, &amp;#39;product&amp;#39;), sep = &amp;#39; - &amp;#39;)
+
+dat_q3 &amp;lt;- rename(dat_q3, products_sold = value)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Turn the &lt;code&gt;date&lt;/code&gt; into a &lt;code&gt;quarter&lt;/code&gt; with &lt;code&gt;lubridate&lt;/code&gt;&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q4 &amp;lt;- mutate(dat_q3, quarter = quarter(Date))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Sum up products sold by &lt;code&gt;store&lt;/code&gt; and &lt;code&gt;quarter&lt;/code&gt;&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q5 &amp;lt;- dat_q4 %&amp;gt;% 
+  group_by(store, quarter) %&amp;gt;% 
+  summarise(products_sold = sum(products_sold))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## `summarise()` regrouping output by &amp;#39;store&amp;#39; (override with `.groups` argument)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Add targets data&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;targets &amp;lt;- read_excel(&amp;#39;week4-data.xlsx&amp;#39;, sheet = &amp;#39;Targets&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Join &lt;code&gt;targets&lt;/code&gt; data to aggregated stores data&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q7 &amp;lt;- inner_join(dat_q5, targets, by = c(&amp;#39;store&amp;#39; = &amp;#39;Store&amp;#39;, &amp;#39;quarter&amp;#39; = &amp;#39;Quarter&amp;#39;))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Calculate variance between actual sales and target&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q9 &amp;lt;- mutate(dat_q7, variance_to_target = Target - products_sold)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Rank the stores based on variance to target in each quarter&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q10 &amp;lt;- dat_q9 %&amp;gt;% 
+  group_by(quarter) %&amp;gt;% 
+  mutate(rank = rank(desc(variance_to_target)))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Export data&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;fwrite(dat_q10, &amp;#39;correct-output.csv&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;You could write this within one pipe call with the below:&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;one_pipe &amp;lt;- dat %&amp;gt;% 
+  pivot_longer(`New - Saddles`:`Existing - Bags`) %&amp;gt;% 
+  separate(name, into = c(&amp;#39;customer_type&amp;#39;, &amp;#39;product&amp;#39;), sep = &amp;#39; - &amp;#39;) %&amp;gt;% 
+  rename(products_sold = value) %&amp;gt;% 
+  mutate(quarter = quarter(Date)) %&amp;gt;% 
+  group_by(store, quarter) %&amp;gt;% 
+  summarise(products_sold = sum(products_sold)) %&amp;gt;% 
+  inner_join(targets, by = c(&amp;#39;store&amp;#39; = &amp;#39;Store&amp;#39;, &amp;#39;quarter&amp;#39; = &amp;#39;Quarter&amp;#39;)) %&amp;gt;% 
+  mutate(variance_to_target = Target - products_sold) %&amp;gt;% 
+  group_by(quarter) %&amp;gt;% 
+  mutate(rank = rank(desc(variance_to_target))) &lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## `summarise()` regrouping output by &amp;#39;store&amp;#39; (override with `.groups` argument)&lt;/code&gt;&lt;/pre&gt;
 
     </description>
     </item>
@@ -207,7 +207,7 @@ write_xlsx(export_data, path = &amp;#39;week2-correct-output.xlsx&amp;#39;, form
     <item>
     <title>Preppin&#39; Data Week 3</title>
     <link>/post/preppin-data-week-3/</link>
-    <pubDate>Tue, 08 Jun 2021 00:00:00 +0000</pubDate>
+    <pubDate>Sun, 06 Jun 2021 00:00:00 +0000</pubDate>
     <author>Scott</author>
     <guid>/post/preppin-data-week-3/</guid>
     <description>
@@ -310,79 +310,105 @@ fwrite(dat_q6_2, file = &amp;#39;correct-output-2.csv&amp;#39;)&lt;/code&gt;&lt;
     </item>
     
     <item>
-    <title>Preppin&#39; Data Week 4</title>
-    <link>/post/preppin-data-week-4/</link>
-    <pubDate>Tue, 08 Jun 2021 00:00:00 +0000</pubDate>
-    <author>Scott Gee</author>
-    <guid>/post/preppin-data-week-4/</guid>
+    <title>Preppin&#39; Data Week 2</title>
+    <link>/post/preppin-data-week-2/</link>
+    <pubDate>Sat, 05 Jun 2021 00:00:00 +0000</pubDate>
+    <author>Scott</author>
+    <guid>/post/preppin-data-week-2/</guid>
     <description>
         
 &lt;script src=&#34;/rmarkdown-libs/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
-&lt;link href=&#34;/rmarkdown-libs/anchor-sections/anchor-sections.css&#34; rel=&#34;stylesheet&#34; /&gt;
-&lt;script src=&#34;/rmarkdown-libs/anchor-sections/anchor-sections.js&#34;&gt;&lt;/script&gt;
 
 
-&lt;p&gt;Week 4 is similar at the start to week 3 but requires the use of joins for the first time in these challenges. This can be done with the &lt;code&gt;inner_join&lt;/code&gt; function in &lt;code&gt;dplyr&lt;/code&gt;. If you know SQL, the syntax will be simple to pick up.&lt;/p&gt;
-&lt;p&gt;The challenge can be found &lt;a href=&#34;https://preppindata.blogspot.com/2021/01/2021-week-4.html&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;First load libraries and read in data. We are using &lt;code&gt;map_df&lt;/code&gt; again to read in multiple sheets. If you haven’t looked at how to do this in week 3 head &lt;a href=&#34;/2021/06/08/preppin-data-week-3/&#34;&gt;there&lt;/a&gt; before reading this week.&lt;/p&gt;
+&lt;p&gt;For week 2 there are lots of calculations to be done which can be done with &lt;code&gt;dplyr&lt;/code&gt; and the &lt;code&gt;mutate&lt;/code&gt;, &lt;code&gt;group_by&lt;/code&gt; and &lt;code&gt;summarise&lt;/code&gt; functions.&lt;/p&gt;
+&lt;p&gt;The challenge can be found &lt;a href=&#34;https://preppindata.blogspot.com/2021/01/2021-week-2.html&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;First load libraries and read in data.&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(tidyverse)
 library(readxl)
-library(lubridate)
-library(data.table)
+library(writexl)
 
-sheet_names &amp;lt;- excel_sheets(&amp;#39;week4-data.xlsx&amp;#39;)[1:5]
-
-sheet_names &amp;lt;- set_names(sheet_names, sheet_names) #this ensures that we can use an id column as the store name
-
-dat &amp;lt;- map_df(sheet_names, ~ read_excel(&amp;#39;week4-data.xlsx&amp;#39;, sheet = .x), .id = &amp;#39;store&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Next pivot the product columns&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q2 &amp;lt;- pivot_longer(dat, `New - Saddles`:`Existing - Bags`)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Split field with customer type and product using &lt;code&gt;separate&lt;/code&gt; and rename &lt;code&gt;value&lt;/code&gt; column to products sold&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q3 &amp;lt;- separate(dat_q2, name, into = c(&amp;#39;customer_type&amp;#39;, &amp;#39;product&amp;#39;), sep = &amp;#39; - &amp;#39;)
-
-dat_q3 &amp;lt;- rename(dat_q3, products_sold = value)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Turn the &lt;code&gt;date&lt;/code&gt; into a &lt;code&gt;quarter&lt;/code&gt; with &lt;code&gt;lubridate&lt;/code&gt;&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q4 &amp;lt;- mutate(dat_q3, quarter = quarter(Date))&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Sum up products sold by &lt;code&gt;store&lt;/code&gt; and &lt;code&gt;quarter&lt;/code&gt;&lt;/p&gt;
+dat &amp;lt;- read_excel(&amp;#39;week2-data.xlsx&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Next, clean up the &lt;code&gt;model&lt;/code&gt; field to leave only the letters. This is done with the regex [aA-zZ]&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q1 &amp;lt;- mutate(dat, Brand = str_extract(Model, &amp;quot;[aA-zZ]+&amp;quot;))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Work out order value by calculating quantity x value per bike&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q2 &amp;lt;- mutate(dat_q1, order_value = Quantity * `Value per Bike`)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Aggregate quantity sold, order value, average value by brand and bike type&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q3 &amp;lt;- dat_q2 %&amp;gt;% 
+  group_by(`Bike Type`, Brand) %&amp;gt;% 
+  summarise(quantity_sold = sum(Quantity), 
+            order_value = sum(order_value),
+            average_value = mean(sum(order_value)/sum(Quantity)))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## `summarise()` regrouping output by &amp;#39;Bike Type&amp;#39; (override with `.groups` argument)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Calculate days to ship with shipping and order dates&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q4 &amp;lt;- dat_q2 %&amp;gt;% 
+  mutate(days_to_ship = `Shipping Date`- `Order Date`)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Aggregate order value, quantity sold and average days to ship by brand and store&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q5 &amp;lt;- dat_q4 %&amp;gt;% 
-  group_by(store, quarter) %&amp;gt;% 
-  summarise(products_sold = sum(products_sold))&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## `summarise()` regrouping output by &amp;#39;store&amp;#39; (override with `.groups` argument)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Add targets data&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;targets &amp;lt;- read_excel(&amp;#39;week4-data.xlsx&amp;#39;, sheet = &amp;#39;Targets&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Join &lt;code&gt;targets&lt;/code&gt; data to aggregated stores data&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q7 &amp;lt;- inner_join(dat_q5, targets, by = c(&amp;#39;store&amp;#39; = &amp;#39;Store&amp;#39;, &amp;#39;quarter&amp;#39; = &amp;#39;Quarter&amp;#39;))&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Calculate variance between actual sales and target&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q9 &amp;lt;- mutate(dat_q7, variance_to_target = Target - products_sold)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Rank the stores based on variance to target in each quarter&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q10 &amp;lt;- dat_q9 %&amp;gt;% 
-  group_by(quarter) %&amp;gt;% 
-  mutate(rank = rank(desc(variance_to_target)))&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Export data&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;fwrite(dat_q10, &amp;#39;correct-output.csv&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;You could write this within one pipe call with the below:&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;one_pipe &amp;lt;- dat %&amp;gt;% 
-  pivot_longer(`New - Saddles`:`Existing - Bags`) %&amp;gt;% 
-  separate(name, into = c(&amp;#39;customer_type&amp;#39;, &amp;#39;product&amp;#39;), sep = &amp;#39; - &amp;#39;) %&amp;gt;% 
-  rename(products_sold = value) %&amp;gt;% 
-  mutate(quarter = quarter(Date)) %&amp;gt;% 
-  group_by(store, quarter) %&amp;gt;% 
-  summarise(products_sold = sum(products_sold)) %&amp;gt;% 
-  inner_join(targets, by = c(&amp;#39;store&amp;#39; = &amp;#39;Store&amp;#39;, &amp;#39;quarter&amp;#39; = &amp;#39;Quarter&amp;#39;)) %&amp;gt;% 
-  mutate(variance_to_target = Target - products_sold) %&amp;gt;% 
-  group_by(quarter) %&amp;gt;% 
-  mutate(rank = rank(desc(variance_to_target))) &lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## `summarise()` regrouping output by &amp;#39;store&amp;#39; (override with `.groups` argument)&lt;/code&gt;&lt;/pre&gt;
+  group_by(Brand, Store) %&amp;gt;% 
+  summarise(quantity_sold = sum(Quantity), 
+            order_value = sum(order_value),
+            average_shipping_time = as.numeric(mean(days_to_ship)))&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## `summarise()` regrouping output by &amp;#39;Brand&amp;#39; (override with `.groups` argument)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Round to 1 decimal place&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q6_1 &amp;lt;- mutate(dat_q5, across(where(is.numeric), round, 1))
+
+dat_q6_2 &amp;lt;- mutate(dat_q3, across(where(is.numeric), round, 1))&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Output&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;export_data &amp;lt;- list(dat_q6_1, dat_q6_2)
+
+write_xlsx(export_data, path = &amp;#39;week2-correct-output.xlsx&amp;#39;, format_headers = FALSE)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Both of these could be written within one pipe by chaining the statements.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat %&amp;gt;% 
+  mutate(Brand = str_extract(Model, &amp;quot;[aA-zZ]+&amp;quot;),
+         order_value = Quantity * `Value per Bike`) %&amp;gt;% 
+  group_by(`Bike Type`, Brand) %&amp;gt;% 
+  summarise(quantity_sold = sum(Quantity), 
+            order_value = sum(order_value),
+            average_value = mean(sum(order_value)/sum(Quantity))) %&amp;gt;% 
+  mutate(across(where(is.numeric), round, 1)) %&amp;gt;% 
+  head()&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## `summarise()` regrouping output by &amp;#39;Bike Type&amp;#39; (override with `.groups` argument)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## # A tibble: 6 x 5
+## # Groups:   Bike Type [2]
+##   `Bike Type` Brand quantity_sold order_value average_value
+##   &amp;lt;chr&amp;gt;       &amp;lt;chr&amp;gt;         &amp;lt;dbl&amp;gt;       &amp;lt;dbl&amp;gt;         &amp;lt;dbl&amp;gt;
+## 1 Gravel      BROM            186      433885         2333.
+## 2 Gravel      GIA             323      733087         2270.
+## 3 Gravel      KONA            324      791841         2444 
+## 4 Gravel      ORRO            151      411644         2726.
+## 5 Gravel      SPEC            974     2295397         2357.
+## 6 Mountain    BROM            277      674770         2436&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat %&amp;gt;% 
+  mutate(Brand = str_extract(Model, &amp;quot;[aA-zZ]+&amp;quot;),
+         order_value = Quantity * `Value per Bike`,
+         days_to_ship = `Shipping Date`- `Order Date`) %&amp;gt;% 
+  group_by(Brand, Store) %&amp;gt;% 
+  summarise(quantity_sold = sum(Quantity), 
+            order_value = sum(order_value),
+            average_shipping_time = as.numeric(mean(days_to_ship))) %&amp;gt;% 
+   mutate(across(where(is.numeric), round, 1)) %&amp;gt;% 
+  head()&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## `summarise()` regrouping output by &amp;#39;Brand&amp;#39; (override with `.groups` argument)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## # A tibble: 6 x 5
+## # Groups:   Brand [2]
+##   Brand Store      quantity_sold order_value average_shipping_time
+##   &amp;lt;chr&amp;gt; &amp;lt;chr&amp;gt;              &amp;lt;dbl&amp;gt;       &amp;lt;dbl&amp;gt;                 &amp;lt;dbl&amp;gt;
+## 1 BROM  Birmingham           155      349759                  11.8
+## 2 BROM  Leeds                150      389116                   9.8
+## 3 BROM  London               133      324635                  11  
+## 4 BROM  Manchester           137      339832                  10.9
+## 5 BROM  York                 145      361852                   9.8
+## 6 GIA   Birmingham           269      581733                   9.9&lt;/code&gt;&lt;/pre&gt;
 
     </description>
     </item>
     
     <item>
-    <title>Preppin&#39; Data Week 5</title>
-    <link>/post/preppin-data-week-5/</link>
-    <pubDate>Tue, 08 Jun 2021 00:00:00 +0000</pubDate>
+    <title>Preppin&#39; Data Week 1</title>
+    <link>/post/preppin-data-week-1/</link>
+    <pubDate>Fri, 04 Jun 2021 00:00:00 +0000</pubDate>
     <author>Scott</author>
-    <guid>/post/preppin-data-week-5/</guid>
+    <guid>/post/preppin-data-week-1/</guid>
     <description>
         
 &lt;script src=&#34;/rmarkdown-libs/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
@@ -390,119 +416,91 @@ dat_q3 &amp;lt;- rename(dat_q3, products_sold = value)&lt;/code&gt;&lt;/pre&gt;
 &lt;script src=&#34;/rmarkdown-libs/anchor-sections/anchor-sections.js&#34;&gt;&lt;/script&gt;
 
 
-&lt;p&gt;Week 5 was definitely more challenging than recent weeks and dealing with duplication can be quite hard in R. It can be helpful to group by the columns of interest and then filter using &lt;code&gt;filter(date = max(date)&lt;/code&gt; to get the latest record or &lt;code&gt;filter(date = min(date)&lt;/code&gt; for the first record for specific columns.&lt;/p&gt;
-&lt;p&gt;The challenge can be found &lt;a href=&#34;https://preppindata.blogspot.com/2021/01/2021-week-.html&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;First load libraries and read in data&lt;/p&gt;
+&lt;p&gt;Week 1 requires the ability to read in data, split and clean columns and some date manipulation.&lt;/p&gt;
+&lt;p&gt;The challenge can be found &lt;a href=&#34;https://preppindata.blogspot.com/2021/01/2021-week-1.html&#34;&gt;here&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;First, load libraries and read in data&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(tidyverse)
 library(readxl)
 library(lubridate)
-library(data.table)
 
-dat &amp;lt;- read_excel(&amp;#39;week5-data.xlsx&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;For each &lt;code&gt;client&lt;/code&gt;, work out the most recent &lt;code&gt;account manager&lt;/code&gt;. For the client, account manager and date, get all separate records. Next filter for the record with the latest date for these three columns&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q1 &amp;lt;- dat %&amp;gt;%
-  select(Client, `Account Manager`, `From Date`) %&amp;gt;% 
-  distinct() %&amp;gt;% 
-  group_by(Client) %&amp;gt;% 
-  filter(`From Date` == max(`From Date`))&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Filter/replace the data so only the most recent &lt;code&gt;account manager&lt;/code&gt; remains. This has been done by grouping by the training session, email, name and client and then only retuning the latest record for each of these.&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q2 &amp;lt;- dat %&amp;gt;% 
-  group_by(Training, `Contact Email`, `Contact Name`, Client) %&amp;gt;% 
-  filter(`From Date` == max(`From Date`)) %&amp;gt;% 
-  inner_join(dat_q1, by = &amp;#39;Client&amp;#39;) %&amp;gt;% 
-  select(-ends_with(&amp;quot;.x&amp;quot;)) %&amp;gt;% 
-  rename(`From Date` = `From Date.y`,
-         `Account Manager` = `Account Manager.y`)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Ensure the most recent client ID remains. This is using a similar method to before, getting the latest client ID for a client and then joining this back to the dataframe with the most recent account manager.&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q3_1 &amp;lt;- dat %&amp;gt;% 
-  select(Client, `Client ID`, `From Date`) %&amp;gt;% 
-  distinct() %&amp;gt;% 
-  ungroup() %&amp;gt;% 
-  group_by(Client) %&amp;gt;% 
-  filter(`From Date` == max(`From Date`)) %&amp;gt;% 
-  arrange(Client)
+dat &amp;lt;- read_excel(&amp;#39;week1-data.xlsx&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Next, use separate to split store and bike&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q1 &amp;lt;- separate(dat, `Store - Bike`, into = c(&amp;#39;Store&amp;#39;, &amp;#39;Bike&amp;#39;), sep = &amp;#39; - &amp;#39;) 
+  
+head(dat_q1)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## # A tibble: 6 x 7
+##   `Order ID` `Customer Age` `Bike Value` `Existing Custo… Date               
+##        &amp;lt;dbl&amp;gt;          &amp;lt;dbl&amp;gt;        &amp;lt;dbl&amp;gt; &amp;lt;chr&amp;gt;            &amp;lt;dttm&amp;gt;             
+## 1          1             22          481 No               2021-04-25 00:00:00
+## 2          2             28         1825 No               2021-01-23 00:00:00
+## 3          3             51         1903 No               2021-07-03 00:00:00
+## 4          4             59         1059 No               2021-01-24 00:00:00
+## 5          5             44         1764 Yes              2021-08-12 00:00:00
+## 6          6             16          967 Yes              2021-08-15 00:00:00
+## # … with 2 more variables: Store &amp;lt;chr&amp;gt;, Bike &amp;lt;chr&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Clean up the &lt;code&gt;Bike&lt;/code&gt; field with &lt;code&gt;case_when&lt;/code&gt; from &lt;code&gt;dplyr&lt;/code&gt;&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q2 &amp;lt;- dat_q1 %&amp;gt;% 
+  mutate(Bike = case_when(str_starts(Bike, &amp;#39;Ro&amp;#39;) == TRUE ~ &amp;#39;Road&amp;#39;,
+                          str_starts(Bike, &amp;#39;Mount&amp;#39;) == TRUE ~ &amp;#39;Mountain&amp;#39;,
+                          str_starts(Bike, &amp;#39;Grav&amp;#39;) == TRUE ~ &amp;#39;Gravel&amp;#39;,
+                          TRUE ~ &amp;#39;OTHER&amp;#39;))
 
-dat_q3_2 &amp;lt;- dat_q2 %&amp;gt;% 
-  ungroup() %&amp;gt;% 
-  inner_join(dat_q3_1, by = c(&amp;#39;Client&amp;#39;, &amp;#39;From Date&amp;#39;)) %&amp;gt;% 
-  select(-`Client ID.x`) %&amp;gt;% 
-  rename(`Client ID` = `Client ID.y`)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Output&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;fwrite(dat_q3_2, file = &amp;#39;week5-correct-output.csv&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+head(dat_q2)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## # A tibble: 6 x 7
+##   `Order ID` `Customer Age` `Bike Value` `Existing Custo… Date               
+##        &amp;lt;dbl&amp;gt;          &amp;lt;dbl&amp;gt;        &amp;lt;dbl&amp;gt; &amp;lt;chr&amp;gt;            &amp;lt;dttm&amp;gt;             
+## 1          1             22          481 No               2021-04-25 00:00:00
+## 2          2             28         1825 No               2021-01-23 00:00:00
+## 3          3             51         1903 No               2021-07-03 00:00:00
+## 4          4             59         1059 No               2021-01-24 00:00:00
+## 5          5             44         1764 Yes              2021-08-12 00:00:00
+## 6          6             16          967 Yes              2021-08-15 00:00:00
+## # … with 2 more variables: Store &amp;lt;chr&amp;gt;, Bike &amp;lt;chr&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Create two different date fields, &lt;code&gt;quarter&lt;/code&gt; and &lt;code&gt;day of month&lt;/code&gt;. The &lt;code&gt;lubridate&lt;/code&gt; package makes this really simple.&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q3 &amp;lt;- dat_q2 %&amp;gt;% 
+  mutate(quarter = quarter(Date),
+         day_of_month = day(Date))
 
-    </description>
-    </item>
-    
-    <item>
-    <title>Preppin&#39; Data Week 6</title>
-    <link>/post/preppin-data-week-6/</link>
-    <pubDate>Tue, 08 Jun 2021 00:00:00 +0000</pubDate>
-    <author>Scott</author>
-    <guid>/post/preppin-data-week-6/</guid>
-    <description>
-        
-&lt;script src=&#34;/rmarkdown-libs/header-attrs/header-attrs.js&#34;&gt;&lt;/script&gt;
-&lt;link href=&#34;/rmarkdown-libs/anchor-sections/anchor-sections.css&#34; rel=&#34;stylesheet&#34; /&gt;
-&lt;script src=&#34;/rmarkdown-libs/anchor-sections/anchor-sections.js&#34;&gt;&lt;/script&gt;
+head(dat_q3)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## # A tibble: 6 x 9
+##   `Order ID` `Customer Age` `Bike Value` `Existing Custo… Date               
+##        &amp;lt;dbl&amp;gt;          &amp;lt;dbl&amp;gt;        &amp;lt;dbl&amp;gt; &amp;lt;chr&amp;gt;            &amp;lt;dttm&amp;gt;             
+## 1          1             22          481 No               2021-04-25 00:00:00
+## 2          2             28         1825 No               2021-01-23 00:00:00
+## 3          3             51         1903 No               2021-07-03 00:00:00
+## 4          4             59         1059 No               2021-01-24 00:00:00
+## 5          5             44         1764 Yes              2021-08-12 00:00:00
+## 6          6             16          967 Yes              2021-08-15 00:00:00
+## # … with 4 more variables: Store &amp;lt;chr&amp;gt;, Bike &amp;lt;chr&amp;gt;, quarter &amp;lt;int&amp;gt;,
+## #   day_of_month &amp;lt;int&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Remove the first 10 orders&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q4 &amp;lt;- slice(dat_q3, -(1:10))
 
-
-&lt;p&gt;For week 6 it showed how little code can be used to manipulate and summarise data in R using &lt;code&gt;dplyr&lt;/code&gt;. &lt;code&gt;pivot_longer&lt;/code&gt; and &lt;code&gt;pivot_wider&lt;/code&gt; were also used to restructure data in to the required format.&lt;/p&gt;
-&lt;p&gt;First load libraries and read in data. Removing the dollar sign with &lt;code&gt;str_remove_all&lt;/code&gt;. The &lt;code&gt;^&lt;/code&gt; will remove everything but digits (0-9).&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;library(tidyverse)
-library(readxl)
-library(data.table)
-
-dat &amp;lt;- read_excel(&amp;#39;week6-data.xlsx&amp;#39;)
-
-#remove dollar sign
-dat &amp;lt;- dat %&amp;gt;% 
-  mutate(MONEY = str_remove_all(MONEY, &amp;quot;[^0-9]&amp;quot;),
-         MONEY = as.integer(MONEY))&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Create a rank by money earned on all tours, then &lt;code&gt;group_by&lt;/code&gt; the tour and create a tour rank. After this the summary statistics can be created with calculations.&lt;/p&gt;
-&lt;p&gt;&lt;code&gt;n() will give the count, if the data is grouped it will count the number of observations within the group(s)&lt;/code&gt;&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q1 &amp;lt;- dat %&amp;gt;% 
-  mutate(overall_rank = rank(desc(MONEY))) %&amp;gt;% 
-  group_by(TOUR) %&amp;gt;% 
-  mutate(tour_rank = rank(desc(MONEY))) %&amp;gt;%  
-  summarise(total_prize_money = sum(MONEY),
-            total_player = n(),
-            total_events = sum(EVENTS),
-            average_prize_money = sum(MONEY)/sum(EVENTS),
-            average_ranking = mean(overall_rank - tour_rank)) &lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## `summarise()` ungrouping output (override with `.groups` argument)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Pivot the data to make it long and then switch the tour names from rows to columns&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q3 &amp;lt;- dat_q1 %&amp;gt;% 
-  pivot_longer(-TOUR) %&amp;gt;% 
-  pivot_wider(names_from = TOUR, values_from = value) &lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;The difference between tours can be created with a simple &lt;code&gt;mutate&lt;/code&gt; call&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat_q4 &amp;lt;- dat_q3 %&amp;gt;% 
-  mutate(difference = LPGA - PGA) %&amp;gt;% 
-  rename(Measure = name)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Output the data&lt;/p&gt;
-&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;fwrite(dat_q4, &amp;#39;week6-correct-output.csv&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;You can answer this within one chunk of code using multiple pipes like below.&lt;/p&gt;
+head(dat_q4)&lt;/code&gt;&lt;/pre&gt;
+&lt;pre&gt;&lt;code&gt;## # A tibble: 6 x 9
+##   `Order ID` `Customer Age` `Bike Value` `Existing Custo… Date               
+##        &amp;lt;dbl&amp;gt;          &amp;lt;dbl&amp;gt;        &amp;lt;dbl&amp;gt; &amp;lt;chr&amp;gt;            &amp;lt;dttm&amp;gt;             
+## 1         11             57          902 No               2021-10-04 00:00:00
+## 2         12             31          946 Yes              2021-01-17 00:00:00
+## 3         13             17         1296 Yes              2021-10-25 00:00:00
+## 4         14             59         1166 Yes              2021-07-18 00:00:00
+## 5         15             24         1781 No               2021-10-10 00:00:00
+## 6         16             59         1074 No               2021-10-06 00:00:00
+## # … with 4 more variables: Store &amp;lt;chr&amp;gt;, Bike &amp;lt;chr&amp;gt;, quarter &amp;lt;int&amp;gt;,
+## #   day_of_month &amp;lt;int&amp;gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Write data to csv file&lt;/p&gt;
+&lt;pre class=&#34;r&#34;&gt;&lt;code&gt;data.table::fwrite(dat_q4, file = &amp;#39;correct-output.csv&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;This could all be done in one piped call if intended&lt;/p&gt;
 &lt;pre class=&#34;r&#34;&gt;&lt;code&gt;dat %&amp;gt;% 
-  mutate(overall_rank = rank(desc(MONEY))) %&amp;gt;% 
-  group_by(TOUR) %&amp;gt;% 
-  mutate(tour_rank = rank(desc(MONEY))) %&amp;gt;%  
-  summarise(total_prize_money = sum(MONEY),
-            total_player = n(),
-            total_events = sum(EVENTS),
-            average_prize_money = sum(MONEY)/sum(EVENTS),
-            average_ranking = mean(overall_rank - tour_rank)) %&amp;gt;% 
-  pivot_longer(-TOUR) %&amp;gt;% 
-  pivot_wider(names_from = TOUR, values_from = value) %&amp;gt;% 
-  mutate(difference = LPGA - PGA) %&amp;gt;% 
-  rename(Measure = name)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## `summarise()` ungrouping output (override with `.groups` argument)&lt;/code&gt;&lt;/pre&gt;
-&lt;pre&gt;&lt;code&gt;## # A tibble: 5 x 4
-##   Measure                   LPGA          PGA   difference
-##   &amp;lt;chr&amp;gt;                    &amp;lt;dbl&amp;gt;        &amp;lt;dbl&amp;gt;        &amp;lt;dbl&amp;gt;
-## 1 total_prize_money   58410411   256726356    -198315945  
-## 2 total_player             100         100             0  
-## 3 total_events            2266        2282           -16  
-## 4 average_prize_money    25777.     112501.       -86724. 
-## 5 average_ranking           96.1         3.87         92.3&lt;/code&gt;&lt;/pre&gt;
+  separate(`Store - Bike`, into = c(&amp;#39;Store&amp;#39;, &amp;#39;Bike&amp;#39;), sep = &amp;#39; - &amp;#39;) %&amp;gt;% 
+  mutate(Bike = case_when(str_starts(Bike, &amp;#39;Ro&amp;#39;) == TRUE ~ &amp;#39;Road&amp;#39;,
+                          str_starts(Bike, &amp;#39;Mount&amp;#39;) == TRUE ~ &amp;#39;Mountain&amp;#39;,
+                          str_starts(Bike, &amp;#39;Grav&amp;#39;) == TRUE ~ &amp;#39;Gravel&amp;#39;,
+                          TRUE ~ &amp;#39;OTHER&amp;#39;),
+         quarter = quarter(Date),
+         day_of_month = day(Date)) %&amp;gt;% 
+  slice(-(1:10)) %&amp;gt;% 
+  data.table::fwrite(file = &amp;#39;week1-correct-output.csv&amp;#39;)&lt;/code&gt;&lt;/pre&gt;
 
     </description>
     </item>
@@ -511,7 +509,7 @@ dat &amp;lt;- dat %&amp;gt;%
     <title>Preppin&#39; Data Index</title>
     <link>/post/preppin-data-index/</link>
     <pubDate>Fri, 01 Jan 2021 00:00:00 +0000</pubDate>
-    
+    <author>Scott</author>
     <guid>/post/preppin-data-index/</guid>
     <description>
         &lt;p&gt;Links&lt;/p&gt;
