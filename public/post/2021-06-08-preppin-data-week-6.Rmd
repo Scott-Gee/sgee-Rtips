@@ -43,7 +43,7 @@ dat_q1 <- dat %>%
   
 ```
 
-Pivot the data to make it long and then switch the tour names from rows to columns
+Pivot the data to make it long and then switch the tour names from rows to columns.
 
 ```{r}
 dat_q3 <- dat_q1 %>% 

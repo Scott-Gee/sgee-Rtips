@@ -12,7 +12,7 @@ Week 5 was definitely more challenging than recent weeks and dealing with duplic
 
 The challenge can be found [here](https://preppindata.blogspot.com/2021/01/2021-week-.html)
 
-First load libraries and read in data
+First load libraries and read in data.
 
 ```{r, message=FALSE, warning=FALSE}
 library(tidyverse)

@@ -12,7 +12,7 @@ For week 2 there are lots of calculations to be done which can be done with `dpl
 
 The challenge can be found [here](https://preppindata.blogspot.com/2021/01/2021-week-2.html)
 
-First load libraries and read in data
+First load libraries and read in data.
 
 ```{r load-libraries, message=FALSE,warning=FALSE}
 library(tidyverse)

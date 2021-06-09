@@ -15,7 +15,7 @@ The challenge can be found [here](https://preppindata.blogspot.com/2021/01/2021-
 
 First load libraries and read in data. We can use `map_df` from the `purrr` package to read in multiple sheets from the same excel file. To use you will need a list, in which the objects you want to be evaluated in a function one-by-one. 
 
-Below we create a list of the names of the sheets in the excel file and then use the `read_excel` function with each sheet defined as `.x`. To make this a dataframe we use `map_df` and create a store column with the names of the list that have been created with `set_names`
+Below we create a list of the names of the sheets in the excel file and then use the `read_excel` function with each sheet defined as `.x`. To make this a dataframe we use `map_df` and create a store column with the names of the list that have been created with `set_names`.
 
 ```{r load-libraries, message=FALSE, warning=FALSE}
 library(tidyverse)

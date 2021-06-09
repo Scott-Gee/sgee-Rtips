@@ -28,7 +28,7 @@ sheet_names <- set_names(sheet_names, sheet_names) #this ensures that we can use
 dat <- map_df(sheet_names, ~ read_excel('week4-data.xlsx', sheet = .x), .id = 'store')
 ```
 
-Next pivot the product columns
+Next pivot the product columns.
 ```{r pivot}
 dat_q2 <- pivot_longer(dat, `New - Saddles`:`Existing - Bags`)
 ```
