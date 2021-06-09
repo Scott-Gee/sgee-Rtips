@@ -77,12 +77,12 @@ dat_q1 &amp;lt;- mutate(dat, Brand = str_extract(Model, &amp;quot;[aA-zZ]+&amp;q
       
       <guid>/post/preppin-data-index/</guid>
       <description>Links
-Week 1: Problem - Solution
-Week 2: Problem - Solution
-Week 3: Problem - Solution
-Week 4: Problem - Solution
-Week 5: Problem - Solution
-Week 6: Problem - Solution</description>
+Week 1: Problem - Solution - Data
+Week 2: Problem - Solution - Data
+Week 3: Problem - Solution - Data
+Week 4: Problem - Solution - Data
+Week 5: Problem - Solution - Data
+Week 6: Problem - Solution - Data</description>
     </item>
     
     <item>
